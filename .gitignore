@@ -1,0 +1,6 @@
+.idea/
+**/__pycache__/**
+.pyre/
+.pyc/
+.venv/
+**/migrations/**

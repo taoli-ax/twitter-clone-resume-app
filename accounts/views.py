@@ -48,7 +48,7 @@ class AccountViewSet(viewsets.ViewSet):
         return Response({
             "success":True,
             "data":UserSerializer(user).data,
-        })
+        },status=200)
 
     @action(methods=['post'], detail=False)
     def signup(self, request, *args, **kwargs):
@@ -66,7 +66,7 @@ class AccountViewSet(viewsets.ViewSet):
         return Response({
             'success':True,
             'data':UserSerializer(user).data,
-        })
+        },status=201)
 
     @action(methods=['post'], detail=False)
     def logout(self, request):
@@ -75,7 +75,7 @@ class AccountViewSet(viewsets.ViewSet):
             'success':True,
         })
 
-    @action(methods=['post'], detail=False)
+    @action(methods=['get'], detail=False)
     def login_status(self, request):
         data = {"is_logged_in":request.user.is_authenticated}
         if request.user.is_authenticated:

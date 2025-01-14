@@ -22,6 +22,7 @@ from accounts import views
 
 router = routers.DefaultRouter()
 router.register(r'api/users', views.UserViewSet)
+router.register(r'api/accounts', views.AccountViewSet, basename='accounts')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),

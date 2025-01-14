@@ -38,9 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # 'accounts.apps.AccountConfig',
-
+    # 项目的
     'accounts',
-
+    'tweets',
+    #第三方的
     'rest_framework',
 ]
 REST_FRAMEWORK = {

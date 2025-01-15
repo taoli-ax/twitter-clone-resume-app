@@ -18,11 +18,13 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 
-from accounts import views
+from accounts.views import UserViewSet,AccountViewSet
+from tweets.api.views import TweetViewSet
 
 router = routers.DefaultRouter()
-router.register(r'api/users', views.UserViewSet)
-router.register(r'api/accounts', views.AccountViewSet, basename='accounts')
+router.register(r'api/users', UserViewSet,basename='api-users')
+router.register(r'api/accounts', AccountViewSet, basename='accounts')
+router.register(r'api/tweets', TweetViewSet, basename='tweets')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),

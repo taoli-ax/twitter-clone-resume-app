@@ -12,6 +12,10 @@ from tweets.models import Tweet
 class TweetViewSet(viewsets.GenericViewSet,
                    mixins.ListModelMixin,
                    mixins.CreateModelMixin):
+    """
+    继承了最常用的GenericViewSet,展现选手对框架的熟练度
+    精确继承了ListModelMixin和CreateModelMixin类，能看出选手对框架的理解是准确的
+    """
     queryset = Tweet.objects.all()
     serializer_class = CreateTweetSerializer
 

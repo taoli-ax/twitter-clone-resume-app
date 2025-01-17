@@ -19,12 +19,14 @@ from django.urls import path, include
 from rest_framework import routers
 
 from accounts.views import UserViewSet,AccountViewSet
+from friendships.api.views import FriendshipViewSet
 from tweets.api.views import TweetViewSet
 
 router = routers.DefaultRouter()
 router.register(r'api/users', UserViewSet,basename='api-users')
 router.register(r'api/accounts', AccountViewSet, basename='accounts')
 router.register(r'api/tweets', TweetViewSet, basename='tweets')
+router.register(r'api/friendship', FriendshipViewSet, basename='friendship')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),

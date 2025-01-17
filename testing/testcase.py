@@ -8,9 +8,11 @@ class TestCase(DjangoTestCase):
     """
     让其他模块的测试继承这个基类
     """
-    def create_user(self, username, email, password=None):
+    def create_user(self, username, email=None, password=None):
         if not password:
             password = '<PASSWORD>'
+        if not email:
+            email = f'{username}@gmail.com'
         user = User.objects.create_user(username=username, email=email, password=password)
         # user.save()
         return user

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # 项目的
     'accounts',
     'tweets',
+    'friendships',
     #第三方的
     'rest_framework',
 ]

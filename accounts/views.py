@@ -6,6 +6,7 @@ from django.contrib.auth import (
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from rest_framework import viewsets, permissions, status
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -19,11 +20,14 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
-
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    def enforce_csrf(self, request):
+        return True
 
 class AccountViewSet(viewsets.ViewSet):
     serializer_class = SignUpSerializer
     permission_classes = (permissions.AllowAny,)
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     @action(methods=['post'], detail=False)
     def login(self, request, *args, **kwargs):

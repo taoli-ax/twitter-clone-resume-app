@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.test import TestCase as DjangoTestCase
 from rest_framework.test import APIClient
+
+from comments.models import Comment
 from tweets.models import Tweet
 
 
@@ -31,3 +33,8 @@ class TestCase(DjangoTestCase):
         tweet = Tweet.objects.create(user=user, content=content)
         # tweet.save()
         return tweet
+
+    def create_comment(self, user, tweet, content=None):
+        if not content:
+            content = "default content"
+        return Comment.objects.create(user=user, tweet=tweet, content=content)

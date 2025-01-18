@@ -112,3 +112,24 @@ class GenericAPIView(APIView):
 ### 7-tweet-api-and-tests
 
 ### 8-friendships-model-api-and-tests
+1. `FriendShip` 模型是让两个用户产生关联关系的模型
+   - 在模型中follower是发起者，following是接受者，
+   - 在url对应的视图中
+     - `friendship/{pk}/follower`请求follower视图,意味着请求pk的followers,也就是这个用户的追随者，传参时`following=pk`,
+        无需登录就可查看有哪些追随者；
+     - `friendship/{pk}/following`请求following视图，意味着查看pk用户正在关注哪些对象，`follower=pk`；
+     - `friendship/{pk}/follow` 请求follow视图，必须要登录的状态下，请求时`pk!=request.user.id`，因为自己无法关注自己,
+       `follower=request.user`, `following=pk`,这样就可以建立两者的关系。
+     
+
+| 名称        | view   | model  | url            |
+|-----------|--------|--------|----------------|
+| follower  | 关系发起的人 | 发起人为用户 | 查看pk的follower  |
+| following | 关系指向的人 | 指向人为用户 | 查看pk的following |
+
+2. 要理解业务模型的意义，才能指定测试的策略，否则一脸懵逼
+3. 没有太多技巧，这一分支主要是理解业务字段
+
+### 9-newsfeed-model-api-tests
+1. 外键的字段会生成对应`外键_id`阶段，这样可以传入外键的实例或者外键的主键id值
+2. 测试阶段，创建一个用户的客户端不同于创建用户的实例，两者完全不想关

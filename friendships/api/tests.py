@@ -5,13 +5,13 @@ from rest_framework.test import APIClient
 
 from friendships.models import FriendShip
 
-FOLLOW= '/api/friendship/{}/follow/'
-FOLLOWER = '/api/friendship/{}/followers/'
-FOLLOWING = '/api/friendship/{}/following/'
+FOLLOW= '/api/friendships/{}/follow/'
+FOLLOWER = '/api/friendships/{}/followers/'
+FOLLOWING = '/api/friendships/{}/following/'
 
 class FriendshipTests(DjangoTestCase):
     def setUp(self):
-        self.anonymous_user = APIClient()
+
 
         self.user_zhunti_client= APIClient()
         self.zhunti = self.create_user(username="zhun ti")
@@ -33,13 +33,13 @@ class FriendshipTests(DjangoTestCase):
 
         url = FOLLOWER.format(self.zhunti_shadow.id)
         # post方式不允许
-        response = self.anonymous_user.post(url)
+        response = self.anonymous_client.post(url)
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
         # 成功获取
-        response = self.anonymous_user.get(url)
+        response = self.anonymous_client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        print(response.data)
+
         t0 = response.data['followers'][0]['created_at']
         t1 = response.data['followers'][1]['created_at']
         t2 = response.data['followers'][2]['created_at']
@@ -53,12 +53,12 @@ class FriendshipTests(DjangoTestCase):
     def test_following(self):
         url = FOLLOWING.format(self.zhunti_shadow.id)
         # post不允许
-        response = self.anonymous_user.post(url)
+        response = self.anonymous_client.post(url)
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
         # 成功获取
-        self.anonymous_user.get(url)
-        response = self.anonymous_user.get(url)
+        self.anonymous_client.get(url)
+        response = self.anonymous_client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         t0 = response.data['following'][0]['created_at']
         t1 = response.data['following'][1]['created_at']
@@ -73,7 +73,7 @@ class FriendshipTests(DjangoTestCase):
         url = FOLLOW.format(self.zhunti.id)
         # 创建关注关系
         # 登录才能关注
-        response = self.anonymous_user.post(url)
+        response = self.anonymous_client.post(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         # get方式不允许
         response = self.user_zhunti_shadow_client.get(url)

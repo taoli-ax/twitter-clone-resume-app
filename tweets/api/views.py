@@ -2,6 +2,8 @@ from django.shortcuts import render
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 
+from newsfeeds.services.newsfeed_service import NewsFeedService
+from testing.utils import CsrfExemptSessionAuthentication
 from tweets.api.serializers import TweetSerializer, CreateTweetSerializer
 from tweets.models import Tweet
 
@@ -18,6 +20,7 @@ class TweetViewSet(viewsets.GenericViewSet,
     """
     queryset = Tweet.objects.all()
     serializer_class = CreateTweetSerializer
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
 
     def list(self, request, *args, **kwargs):
@@ -25,7 +28,7 @@ class TweetViewSet(viewsets.GenericViewSet,
             return Response("missing user_id",status=400)
 
         # 根据用户id展示对应的推文
-        tweets = Tweet.objects.filter(user_id=request.query_params["user_id"])
+        tweets = Tweet.objects.filter(user=request.query_params["user_id"])
         serializer = TweetSerializer(tweets, many=True) # 多条数据用many
         # 不需要调用is_valid() 因为没有用户输入，不需要反序列化验证
         return Response(serializer.data)
@@ -45,7 +48,7 @@ class TweetViewSet(viewsets.GenericViewSet,
                 "success": False
             }, status=400)
         tweet = serializer.save()
-
+        NewsFeedService.fanout_to_followers(tweet)
         return Response(TweetSerializer(tweet).data, status=201)
 
 

@@ -15,8 +15,6 @@ CREATE_TWEETS='/api/tweets/'
 class TestTweet(TestCase):
     def setUp(self):
         self.user1_client = APIClient()
-        self.anonymous = APIClient()
-
         self.user1= self.create_user("adobe","adobe@gmail.com")
         self.user1_client.force_authenticate(user=self.user1)
         self.tweet1=[
@@ -47,11 +45,11 @@ class TestTweet(TestCase):
         # 发推的时候不可以匿名，长度不能超过限制，也不能发空的
 
         # 期望失败，没有id不行
-        response  = self.anonymous.get(LIST_TWEETS)
+        response  = self.anonymous_client.get(LIST_TWEETS)
         self.assertEqual(response.status_code, 400)
 
         # 正常查看用户的帖子
-        response = self.anonymous.get(LIST_TWEETS,{"user_id":self.user2.id})
+        response = self.anonymous_client.get(LIST_TWEETS,{"user_id":self.user2.id})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 2)
 
@@ -60,7 +58,7 @@ class TestTweet(TestCase):
         self.assertEqual(response.data[1]['id'], self.tweet2[0].id )
 
     def test_create_tweet(self):
-        resp = self.anonymous.post(CREATE_TWEETS)
+        resp = self.anonymous_client.post(CREATE_TWEETS)
         self.assertEqual(resp.status_code, 400)
 
         # content太长太短都报错

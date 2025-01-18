@@ -6,11 +6,11 @@ from django.contrib.auth import (
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from rest_framework import viewsets, permissions, status
-from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from accounts.api.serializers import UserSerializer, SignUpSerializer, LoginSerializer
+from testing.utils import CsrfExemptSessionAuthentication
 
 
 # Create your views here.
@@ -20,11 +20,16 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
-class CsrfExemptSessionAuthentication(SessionAuthentication):
-    def enforce_csrf(self, request):
-        return True
+
 
 class AccountViewSet(viewsets.ViewSet):
+    """
+            定制化的ViewSet视图集，包含4个额外动作
+            1. signup
+            2. login
+            3. logout
+            4. login_status
+    """
     serializer_class = SignUpSerializer
     permission_classes = (permissions.AllowAny,)
     authentication_classes = (CsrfExemptSessionAuthentication,)

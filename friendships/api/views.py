@@ -4,14 +4,16 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
+
 from friendships.models import FriendShip
 from friendships.api.serializers import SerializerForCreateFriendShip, FollowerSerializer,FollowingSerializer
-
+from testing.utils import CsrfExemptSessionAuthentication
 
 
 class FriendshipViewSet(viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = SerializerForCreateFriendShip
+    authentication_classes = (CsrfExemptSessionAuthentication,)
 
     @action(detail=True, methods=['GET'],permission_classes=[AllowAny])
     def followers(self, request, pk):
@@ -58,7 +60,7 @@ class FriendshipViewSet(viewsets.GenericViewSet):
         serializer.save()
         return Response({"success":True}, status=status.HTTP_201_CREATED)
 
-    @action(methods=['POST'], detail=True)
+    @action(methods=['POST'], detail=True, permission_classes=[IsAuthenticated])
     def unfollow(self, request, pk):
         if request.user.id==str(pk):
             return Response({

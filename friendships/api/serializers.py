@@ -24,7 +24,6 @@ class SerializerForCreateFriendShip(serializers.ModelSerializer):
 
     def validate(self, attrs):
         # 不能自己关注自己
-        print(attrs)
         if attrs["following"]==attrs["follower"]:
             raise serializers.ValidationError("follower and following should be different.")
         return attrs

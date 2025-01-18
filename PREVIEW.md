@@ -69,3 +69,15 @@
    |                | 匿名用户                              | &#x274C;  |
    |                | 验证时间排序                            | &#x274C;  |
    |                | 验证帖子的内容排序                         | &#x274C;  |
+
+
+### 9-newsfeed-model-api-tests
+**`预习不代表空想，预习就是看第一遍有什么感想，知道哪些不足`**
+1. newsfeed是 给用户的追随者们发送tweet，发送的范围是用户的follower
+2. bulk_creat 批量创建
+3. services处理内部逻辑，让代码更整洁
+4. prefetch_relate怎么用
+5. NewsFeed(user=tweet.user)又要同时NewsFeed(user=follower),这两个为什么一起存储
+6. NewsFeed视图的权限设计
+7. newsfeed工作方式，follower用户查询自己的newsfeed, following的用户负责发推，在tweetViewSet的create视图中，
+   通过FriendShip找到所有的followers,并把tweet文存储到这些followers的NewsFeed里，最终每个用户就能看到自己的newsfeed

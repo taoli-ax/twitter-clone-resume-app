@@ -81,3 +81,22 @@
 6. NewsFeed视图的权限设计
 7. newsfeed工作方式，follower用户查询自己的newsfeed, following的用户负责发推，在tweetViewSet的create视图中，
    通过FriendShip找到所有的followers,并把tweet文存储到这些followers的NewsFeed里，最终每个用户就能看到自己的newsfeed
+8. 实例级别的属性懒加载
+   ```python
+   from rest_framework.test import APIClient
+   class A:
+       @property
+       def anonymous(self):
+           if hasattr(self,'_anonymous'):
+               return self.anonymous
+           self._anonymous = APIClient()
+           return self._anonymous
+   ```
+
+### 10-comments-model-admin
+1. 一个评论里包含了哪些要素呢
+   - user,评论者
+   - tweet,评论的推文
+   - created_at,评论发表的时间
+   - update_at , 修改评论的时间
+   - content,评论的内容

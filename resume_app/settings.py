@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'tweets',
     'friendships',
     'newsfeeds',
+    'comments',
     #第三方的
     'rest_framework',
 ]

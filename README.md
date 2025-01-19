@@ -134,6 +134,12 @@ class GenericAPIView(APIView):
 1. 外键的字段会生成对应`外键_id`阶段，这样可以传入外键的实例或者外键的主键id值
 2. 测试阶段，创建一个用户的客户端不同于创建用户的实例，两者完全不相关
 
-# 10-comments-model-admin
+### 10-comments-model-admin
 1. 不明白注释里说的 这个版本中，我们先实现一个比较简单的评论
     评论只评论在某个Tweet上，不能评论别人的评论， azhen可以评论aqiang的推文，难道你要实现的是非好友也能评论吗？
+
+
+### 11-comment-create-api
+1. Q:user,user_id,tweet,tweet_id傻傻分不清楚，什么时候传实例，什么时候传id?
+    A: 前后端约定了传什么就传什么 
+2. 要细心一点，serializer.create方法评论内容都没保存，创建了个寂寞

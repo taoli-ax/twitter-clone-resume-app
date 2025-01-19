@@ -100,3 +100,13 @@
    - created_at,评论发表的时间
    - update_at , 修改评论的时间
    - content,评论的内容
+
+
+### 11-comment-create-api
+1. list接口如何传递tweet参数呢，要不要传tweet？想不明白
+2. request参数需要封装给serializer吗
+3. get_permission方法里面if条件如何写，is_authenticated从何而来，request好像也没有
+4. Q: 为什么不需要list方法，难道不是需要展示推文下所有的评论吗？
+   - A: `母鸡`
+5. Q: 测试的时候如何给comment传tweet,先要查询吗?
+   - A: 先创建一个tweet实例

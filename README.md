@@ -147,3 +147,7 @@ class GenericAPIView(APIView):
 ### 12-comment-update-and-destroy-api
 1. `update`被路由默认绑定<pk>,而不是在视图中显式指定detail=True,类似的方法还有`retrieve`,`delete`
 2. 学到一招：serializer的作用还可以告诉接口，我接受哪些model字段进行验证，即使用户传来了一些不需要的字段，`validate()`方法可以忽略不验证也不会报错。
+
+### 13-comments-list-api
+1. `django-filter`应该是**`django_filter`**,我槽，这么个小坑，根本无法察觉
+2. 所有的方法都会被`permission_class`过滤，所以才需要设置`get_permissions()`来定义哪些情况可以豁免

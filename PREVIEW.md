@@ -117,3 +117,15 @@
    - update和delete获取的是Comment对象.   &#x2705;
 3. Q:如何验证update的内容? &#x1F6AB;
    - 根本不需要验证&#x1F6AB;，直接在update方法里判断并保存  &#x2705; 是不是有点神奇，侧面说明我忘了前天学习的内容了 &#x1F440;
+
+
+### 13-comments-list-api
+1. 怎么导入local settings这段代码怎么理解？
+   ```shell
+   #settings.py
+   try:
+      form .local_settings import *
+   except:
+      pass
+   ```
+2. django-filter的作用推测应该是根据字段过滤queryset

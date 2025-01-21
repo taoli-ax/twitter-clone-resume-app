@@ -129,3 +129,6 @@
       pass
    ```
 2. django-filter的作用推测应该是根据字段过滤queryset
+
+### 14-tweet-retrieve-api-with-comments
+1. 这个分支重点是decorator,意图在tweet下带出所有的comment

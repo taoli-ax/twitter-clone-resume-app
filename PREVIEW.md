@@ -110,3 +110,10 @@
    - A: `母鸡`
 5. Q: 测试的时候如何给comment传tweet,先要查询吗?
    - A: 先创建一个tweet实例
+
+### 12-comment-update-and-destroy-api
+1. Q:自定义permission类如何具体发挥作用？
+2. update和delete需要tweet的instance对象，通过self.get_object()方法获取. &#x274C;
+   - update和delete获取的是Comment对象.   &#x2705;
+3. Q:如何验证update的内容? &#x1F6AB;
+   - 根本不需要验证&#x1F6AB;，直接在update方法里判断并保存  &#x2705; 是不是有点神奇，侧面说明我忘了前天学习的内容了 &#x1F440;

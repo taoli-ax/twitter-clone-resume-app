@@ -143,3 +143,7 @@ class GenericAPIView(APIView):
 1. Q:user,user_id,tweet,tweet_id傻傻分不清楚，什么时候传实例，什么时候传id?
     A: 前后端约定了传什么就传什么 
 2. 要细心一点，serializer.create方法评论内容都没保存，创建了个寂寞
+
+### 12-comment-update-and-destroy-api
+1. `update`被路由默认绑定<pk>,而不是在视图中显式指定detail=True,类似的方法还有`retrieve`,`delete`
+2. 学到一招：serializer的作用还可以告诉接口，我接受哪些model字段进行验证，即使用户传来了一些不需要的字段，`validate()`方法可以忽略不验证也不会报错。

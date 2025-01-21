@@ -79,3 +79,31 @@ class CommentsTest(TestCase):
 
         self.assertEqual(response.status_code,200)
         self.assertEqual(Comment.objects.count(),count - 1)
+
+    def test_list(self):
+        # 不带 tweet_id
+        response = self.anonymous_client.get(COMMENT_URL)
+        self.assertEqual(response.status_code,400)
+
+        # 带 tweet_id 一开始没有评论
+        self.create_tweet(self.python, self.tweet_python)
+        response = self.anonymous_client.get(COMMENT_URL,data={"tweet_id":self.tweet_python.id})
+        self.assertEqual(len(response.data['comments']),0)
+
+        # 创建两个评论，并正常查询
+        self.create_comment(user=self.python, tweet=self.tweet_python, content="1")
+        self.create_comment(user=self.python, tweet=self.tweet_python, content="2")
+        self.create_comment(user=self.django, tweet=self.tweet_django, content="3")
+        response = self.client_python.get(COMMENT_URL,data={'tweet_id':self.tweet_python.id})
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(len(response.data['comments']),2)
+
+        # 提供两个参数，只有一个tweet_id会生效
+        response = self.anonymous_client.get(COMMENT_URL,data={
+            'tweet_id':self.tweet_django.id,
+            'user_id':self.django.id,
+        })
+        self.assertEqual(len(response.data['comments']),1)
+        self.assertEqual(response.data['comments'][0]['content'],'3')
+        print(response.data['comments'][0]['user'])
+        self.assertEqual(response.data['comments'][0]['user']['id'],self.django.id)

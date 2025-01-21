@@ -46,10 +46,13 @@ INSTALLED_APPS = [
     'comments',
     #第三方的
     'rest_framework',
+    'django_filters',
 ]
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
+    'DEFAULT_FILTER_BACKENDS':[
+        'django_filters.rest_framework.DjangoFilterBackend',]
 }
 
 MIDDLEWARE = [
@@ -141,7 +144,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
+try:
+    from .local_settings import *
+except ImportError:
+    pass
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 

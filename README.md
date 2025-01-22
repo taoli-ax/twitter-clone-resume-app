@@ -151,3 +151,8 @@ class GenericAPIView(APIView):
 ### 13-comments-list-api
 1. `django-filter`应该是**`django_filter`**,我槽，这么个小坑，根本无法察觉
 2. 所有的方法都会被`permission_class`过滤，所以才需要设置`get_permissions()`来定义哪些情况可以豁免
+
+
+### 15-likes-model-and-admin
+1. 创建Likes时 content_object 是不需要传递的，直接拿到django-admin里展示，会展示某个模型的实例的__str__
+2. Comment的@property的属性Likes.objects.filter(`object_id,content_type`)找到的是该条评论的**所有**likes

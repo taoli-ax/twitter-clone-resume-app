@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'friendships',
     'newsfeeds',
     'comments',
+    'likes',
     #第三方的
     'rest_framework',
     'django_filters',

@@ -132,3 +132,17 @@
 
 ### 14-tweet-retrieve-api-with-comments
 1. 这个分支重点是decorator,意图在tweet下带出所有的comment
+
+
+### 15-likes-model-and-api
+1. 为什么 Tweet 和 Comment 也是可以加like的，怎么加？通过ContentType黑科技关联
+2. Q:ContentType是外键吗? 为什么可以关联任意的模型，即使like没有定义comment的外键？如何使用代码里已经说明。
+   - A:根据chatGpt的回答，我又有了新的认识
+   - A:ContentType关联的是model的名称和所属的app_label，object_id是关联的model主键id,联合起来就可以找到某个模型的某一条记录。
+   - A:这是动态查找关联的，而不是数据库级别的约束，灵活关联任意的模型，无需硬编码模型的外键定义。
+   - A&Q:这就解释了like_set定义到comment和tweet模型，用来关联用户的tweet/comment的like数量 Q:新的疑问，用户的点赞api是如何实现的？
+     - A:
+3. 测试完全没有思维，如何测试我的model?如何创建一个like?
+   - 需要tweet_id或者comment_id吧 &#x274C;
+   - content_type参数应该传递的是模型实例，而不是模型本身  &#10004;
+   - like创建时传入任意实例，不管是tweet还是comment，或更多其他的，target就能解决一切 &#10004;

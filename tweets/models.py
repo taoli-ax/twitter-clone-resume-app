@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
+from likes.models import Likes
 from tweets.utils.time_helper import utc_now
 
 
@@ -23,3 +25,9 @@ class Tweet(models.Model):
         return f"{self.created_at} {self.user} :{self.content}"
 
 
+    @property
+    def like_set(self):
+        return Likes.objects.filter(
+            object_id=self.id,
+            content_type=ContentType.objects.get_for_model(Tweet),
+        ).order_by('-created_at')

@@ -13,14 +13,13 @@ class LikesSerializer(serializers.ModelSerializer):
         model = Likes
         fields =('user','created_at')
 
-
-class LikeSerializerForCreate(serializers.ModelSerializer):
-    content_type = serializers.ChoiceField(choices=['tweet','comment'])
+class BaseLikesSerializerForCreateAndCancel(serializers.ModelSerializer):
+    content_type = serializers.ChoiceField(choices=['tweet', 'comment'])
     object_id = serializers.IntegerField()
 
     class Meta:
         model = Likes
-        fields = ('content_type','object_id')
+        fields = ('content_type', 'object_id')
 
     def _get_model_class(self, data):
         if data['content_type'] == 'tweet':
@@ -28,6 +27,7 @@ class LikeSerializerForCreate(serializers.ModelSerializer):
         if data['content_type'] == 'comment':
             return Comment
         return None
+
     def validate(self, data):
         model_class = self._get_model_class(data)
         if model_class is None:
@@ -35,8 +35,9 @@ class LikeSerializerForCreate(serializers.ModelSerializer):
         like_object = model_class.objects.filter(id=data['object_id']).first()
         if like_object is None:
             raise serializers.ValidationError('Invalid object_id')
-        return  data
+        return data
 
+class LikeSerializerForCreate(BaseLikesSerializerForCreateAndCancel):
     def create(self, validated_data):
         model_class = self._get_model_class(validated_data)
         instance,_= Likes.objects.get_or_create(
@@ -45,3 +46,12 @@ class LikeSerializerForCreate(serializers.ModelSerializer):
             user = self.context['request'].user,
         )
         return instance
+
+class LikeSerializerForCancel(BaseLikesSerializerForCreateAndCancel):
+    def cancel(self):
+        model_class = self._get_model_class(self.validated_data)
+        return Likes.objects.filter(
+            content_type=ContentType.objects.get_for_model(model_class),
+            object_id=self.validated_data['object_id'],
+            user = self.context['request'].user
+        ).delete()

@@ -33,9 +33,8 @@ class TestCase(DjangoTestCase):
     def create_tweet(self, user, content=None):
         if not content:
             content = "default content"
-        tweet = Tweet.objects.create(user=user, content=content)
-        # tweet.save()
-        return tweet
+        return Tweet.objects.create(user=user, content=content)
+
 
     def create_comment(self, user, tweet, content=None):
         if not content:
@@ -48,3 +47,9 @@ class TestCase(DjangoTestCase):
             content_type=ContentType.objects.get_for_model(target.__class__),
             object_id=target.id)
         return instance
+
+    def create_user_and_client(self, username, email=None, password=None):
+        user = self.create_user(username)
+        self.user_client = APIClient()
+        self.user_client.force_authenticate(user=user)
+        return self.user_client,user

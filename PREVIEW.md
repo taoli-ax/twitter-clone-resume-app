@@ -146,3 +146,6 @@
    - 需要tweet_id或者comment_id吧 &#x274C;
    - content_type参数应该传递的是模型实例，而不是模型本身  &#10004;
    - like创建时传入任意实例，不管是tweet还是comment，或更多其他的，target就能解决一切 &#10004;
+   
+### 16-likes-create-api
+1. 看了一下系统设计，里面第一章是关于的twitter的，要好好再复习一下，对项目架构有所把握，而不是只写代码，不见泰山

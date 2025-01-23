@@ -156,3 +156,12 @@ class GenericAPIView(APIView):
 ### 15-likes-model-and-admin
 1. 创建Likes时 content_object 是不需要传递的，直接拿到django-admin里展示，会展示某个模型的实例的__str__
 2. Comment的@property的属性Likes.objects.filter(`object_id,content_type`)找到的是该条评论的**所有**likes
+
+### 16-likes-create-api
+1. 理解更深刻了，like_set是实例方法，只有Tweet的实例才有count()熟悉和数据
+2. 一个用户对一个tweet发送多次like,只算一次，因为，unique_index 规定了 user,content_type,object_id
+3. 用户传递字符串 tweet,被手动映射为Tweet模型，是在serializer里完成的，没什么神奇的
+4. get_or_create方法更稳健，如果直接create,就会傻傻的创建另一个重复的记录，直接引发数据库unique index报错。
+5. 测试的时候client会带用户信息，这一点要记得下次写tests时有思路
+6. permission_class如果不指定，匿名用户会引发代码报错，所以必须要检查
+7. require_params装饰器方法的巧妙之处，现在有进一步了解，他是静态的定义所需要的参数，然后检查request.data里是否有需要的参数

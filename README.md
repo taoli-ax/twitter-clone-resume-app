@@ -165,3 +165,8 @@ class GenericAPIView(APIView):
 5. 测试的时候client会带用户信息，这一点要记得下次写tests时有思路
 6. permission_class如果不指定，匿名用户会引发代码报错，所以必须要检查
 7. require_params装饰器方法的巧妙之处，现在有进一步了解，他是静态的定义所需要的参数，然后检查request.data里是否有需要的参数
+
+### 17-likes-cancel-api
+1. GenericViewSet中的create方法自动映射为http的post请求，@action装饰的方法自动映射函数名为url
+2. 用户没点赞，但是如果请求取消点赞也不会报错
+3. 点赞需要登录之后才能操作

@@ -149,3 +149,21 @@
    
 ### 16-likes-create-api
 1. 看了一下系统设计，里面第一章是关于的twitter的，要好好再复习一下，对项目架构有所把握，而不是只写代码，不见泰山
+
+### 18-inject-like-infos-to-other-api
+1. 改动了哪些Serializer
+   - `CommentSerializer` 添加了方法字段
+     - `like_count` 
+     - `has_liked`
+   - `LikeService`
+   - `newsfeedViewSet` 添加了 context={request:'request'},因为?
+   - `TweetSerializer` 添加了方法字段
+     - `comment_count`  `comment_set`默认反向关联
+     - `like_count`    
+     - `has_liked`  调用LikeService
+     - 子类 `TweetSerializerForDetail`
+        - `likes`  调用`source='like_set'`属性反向查询tweet的所有点赞
+     - 删除了`CreateTweetSerializer`,替换为 `TweetSerializerForCreate`
+2. 添加了哪些测试
+   - tweet的view要测试`response.data`: comment_count,like_count,has_like
+   - comment的view要测试`response.data`: like_count,has_liked

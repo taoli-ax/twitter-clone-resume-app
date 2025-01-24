@@ -4,9 +4,14 @@ from django.utils import timezone
 from rest_framework.test import APIClient
 
 from comments.models import Comment
+from newsfeeds.api.tests import NEWSFEED
 from testing.testcase import TestCase
 
 COMMENT_URL='/api/comments/'
+TWEET_URL='/api/tweets/'
+TWEET_DETAILS_URL='/api/tweets/{}/'
+NEWSFEED_URL='/api/newsfeeds/'
+
 class CommentsTest(TestCase):
     def setUp(self):
         self.client_django = APIClient()
@@ -107,3 +112,25 @@ class CommentsTest(TestCase):
         self.assertEqual(response.data['comments'][0]['content'],'3')
         print(response.data['comments'][0]['user'])
         self.assertEqual(response.data['comments'][0]['user']['id'],self.django.id)
+
+    def test_comments_count(self):
+        url = TWEET_DETAILS_URL.format(self.tweet_django.id)
+
+        # 一开始没有评论 test tweet detail api
+        response = self.client_python.get(url)
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.data['comment_count'],0)
+
+        # test tweet list api
+        response = self.client_python.get(TWEET_URL, data={'user_id':self.python.id})
+        self.assertEqual(response.data[0]['comment_count'], 0)
+
+        # test newsfeed api
+        self.create_comment(self.python, self.tweet_django)
+        self.create_newsfeed(self.django, self.tweet_django)
+
+        response = self.client_django.get(NEWSFEED)
+        self.assertEqual(response.status_code,200)
+        # 记住，只有tweet才有评论数
+        self.assertEqual(response.data['newsfeed'][0]['tweet']['comment_count'],1)
+

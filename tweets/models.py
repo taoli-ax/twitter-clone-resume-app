@@ -27,6 +27,7 @@ class Tweet(models.Model):
 
     @property
     def like_set(self):
+        # 查询的是tweet实例的所有点赞并按时间倒叙排列返回
         return Likes.objects.filter(
             object_id=self.id,
             content_type=ContentType.objects.get_for_model(Tweet),

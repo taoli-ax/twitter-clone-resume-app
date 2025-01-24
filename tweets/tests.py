@@ -11,6 +11,8 @@ from tweets.utils.time_helper import utc_now
 LIST_TWEETS='/api/tweets/'
 CREATE_TWEETS='/api/tweets/'
 TWEET_RETRIEVE_API ='/api/tweets/{}/'
+
+
 # Create your tests here.
 class TestTweet(TestCase):
     def setUp(self):
@@ -59,7 +61,7 @@ class TestTweet(TestCase):
 
     def test_create_tweet(self):
         resp = self.anonymous_client.post(CREATE_TWEETS)
-        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.status_code, 403)
 
         # content太长太短都报错
         resp = self.user1_client.post(CREATE_TWEETS,{"content":"hello"*100})
@@ -92,4 +94,3 @@ class TestTweet(TestCase):
         self.create_comment(self.user1, tweet, 'hmm...')
         response = self.anonymous_client.get(url)
         self.assertEqual(len(response.data['comments']), 2)
-

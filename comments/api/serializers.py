@@ -2,20 +2,37 @@ from rest_framework import serializers
 
 from accounts.api.serializers import UserSerializer
 from comments.models import Comment
+from likes.services import LikesService
 from tweets.models import Tweet
 
 
 class CommentSerializer(serializers.ModelSerializer):
     user= UserSerializer()
+    has_liked = serializers.SerializerMethodField()
+    likes_count = serializers.SerializerMethodField()
+
+    def get_likes_count(self, obj):
+        return obj.like_set.count()
+
+    def get_has_liked(self, obj: Comment):
+        return LikesService.has_liked(self.context['request'].user, obj)
+
     class Meta:
         model = Comment
-        fields =('user','tweet_id','content','created_at')
+        fields =(
+            'user',
+            'tweet_id',
+            'content',
+            'has_liked',
+            'likes_count',
+            'created_at')
 
 
 class CommentForCreateSerializer(serializers.ModelSerializer):
     # user_id和tweet_id必须手动传，因为model只映射user和tweet
     user_id = serializers.IntegerField()
     tweet_id = serializers.IntegerField()
+
     class Meta:
         model = Comment
         fields = ('user_id','tweet_id','content')

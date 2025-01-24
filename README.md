@@ -170,3 +170,25 @@ class GenericAPIView(APIView):
 1. GenericViewSet中的create方法自动映射为http的post请求，@action装饰的方法自动映射函数名为url
 2. 用户没点赞，但是如果请求取消点赞也不会报错
 3. 点赞需要登录之后才能操作
+
+### 18-inject-like-info-to-other-api
+1. 这个分支把tweet-comment-like串联起来，做到了一次查询，所有tweet相关的comment和like都查询出来，包括comment的like也能查询出来
+2. 所以TweetSerializer增加了`comment_count` ,`like_count`和`has_liked`, `CommentSerializer`增加了`like_count`和`has_liked`
+    
+    | Serializer        | comment_count | like_count | has_liked |
+    |-------------------|---------------|------------|-----------|
+    | CommentSerializer | &#x274C;      | &#10004;   | &#10004;  |
+    | TweetSerializer   | &#10004;      | &#10004;   | &#10004;  |
+3. 测试的url分为两个维度，tweet维度和comment维度，分别看到的内容不一样
+    
+    | 维度       | list          | detail   | anonymous |
+    |----------|---------------|----------|-----------|
+    | tweet    | has_liked     |          | get       |
+    | tweet    | likes_count   |          | get       |
+    | tweet    | comment_count |          | get       |
+    | tweet    | user          |          | get       |
+    | tweet    |               | comments | get       |
+    | tweet    |               | likes    | get       |
+    | comment  | has_liked     |          | get       |
+    | comment  | likes_count   |          | get       |
+    | newsfeed | 内嵌 tweet      |          | get       |

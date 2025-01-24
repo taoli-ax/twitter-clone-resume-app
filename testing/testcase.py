@@ -6,6 +6,7 @@ from rest_framework.test import APIClient
 
 from comments.models import Comment
 from likes.models import Likes
+from newsfeeds.models import NewsFeed
 from tweets.models import Tweet
 
 
@@ -35,6 +36,8 @@ class TestCase(DjangoTestCase):
             content = "default content"
         return Tweet.objects.create(user=user, content=content)
 
+    def create_newsfeed(self, user, tweet):
+        return NewsFeed.objects.create(user=user, tweet=tweet)
 
     def create_comment(self, user, tweet, content=None):
         if not content:

@@ -36,5 +36,6 @@ router.register(r'api/likes', LikesViewSet, basename='likes')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
+    # path('inbox/notifications/', include('notifications.urls', namespace='notifications')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

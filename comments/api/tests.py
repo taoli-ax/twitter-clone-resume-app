@@ -7,10 +7,14 @@ from comments.models import Comment
 from newsfeeds.api.tests import NEWSFEED
 from testing.testcase import TestCase
 
+from notifications.models import Notification
+
 COMMENT_URL='/api/comments/'
 TWEET_URL='/api/tweets/'
 TWEET_DETAILS_URL='/api/tweets/{}/'
 NEWSFEED_URL='/api/newsfeeds/'
+LIKES_CREATE_URL = '/api/likes/'
+
 
 class CommentsTest(TestCase):
     def setUp(self):
@@ -133,4 +137,26 @@ class CommentsTest(TestCase):
         self.assertEqual(response.status_code,200)
         # 记住，只有tweet才有评论数
         self.assertEqual(response.data['newsfeed'][0]['tweet']['comment_count'],1)
+
+    def test_comment_create_api_trigger_notification(self):
+        # 要通过api测试，而不是直接创建模型实例
+        self.assertEqual(Notification.objects.count(),0)
+        response = self.client_python.post(COMMENT_URL,data={
+            'tweet_id':self.tweet_django.id,
+            'content':"new comment"
+        })
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Notification.objects.count(),1)
+
+    def test_like_create_api_trigger_notification(self):
+        self.assertEqual(Notification.objects.count(),0)
+        response = self.client_python.post(LIKES_CREATE_URL,
+            data={
+                'object_id':self.tweet_django.id,
+                'content_type':'tweet'
+            })
+        self.assertEqual(response.status_code,201)
+        self.assertEqual(Notification.objects.count(),1)
+
+
 

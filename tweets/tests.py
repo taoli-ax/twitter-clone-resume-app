@@ -1,12 +1,12 @@
 import time
-from datetime import timezone, timedelta, datetime
+from datetime import timedelta
 
 from rest_framework.test import APIClient
 from django.contrib.auth.models import User
 from testing.testcase import TestCase
 
 from tweets.models import Tweet
-from tweets.utils.time_helper import utc_now
+from utils.time_helper import utc_now
 
 LIST_TWEETS='/api/tweets/'
 CREATE_TWEETS='/api/tweets/'

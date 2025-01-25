@@ -167,3 +167,27 @@
 2. 添加了哪些测试
    - tweet的view要测试`response.data`: comment_count,like_count,has_like
    - comment的view要测试`response.data`: like_count,has_liked
+
+### 19-install-notification-api
+1. 为什么send_like_notification的判断条件是like.user==target.user
+   ```python
+         class Notification:
+            @classmethod
+            def send_like_notification(cls,like):
+               target = like.content_type
+               if target.user == like.user:
+                  return
+   ```
+   这里的like.user是点赞的用户，target.user是tweet的作者，不能是自己点赞自己的推文吗？
+   我检查一下推特。。。 &#x1F436;
+   我突然明白了，自己给自己点赞是可以的，但是没必要发送通知，哈哈哈哈 &#x1F436;&#x1F145;
+2. 要在什么时机使用通知呢？？ 跳出代码的条条框框用常识想一下
+   - 评论时 comment.create
+   - 点赞comment时 like.create
+   - 点赞tweet时 like.create
+   
+3. 如何测试通知
+   - 测试评论的时候会触发通知
+   - 测试点赞tweet时触发通知
+   - 测试点赞comment时触发通知
+   - 测试NotificationService本身

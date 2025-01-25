@@ -1,14 +1,19 @@
 from functools import wraps
 from rest_framework.response import Response
 
-def required_params(query_attr='query_params', params=None):
+def required_params(method='GET', params=None):
     if params is None:
         params = []
 
     def decorated(func):
         @wraps(func)
         def _wrapper(instance,request,*args, **kwargs):
-            data = getattr(request, query_attr)
+            # add支持post方式
+            if method.lower() == 'get':
+                data = request.query_params
+            else:
+                data = request.data
+
             for param in params:
                 if param not in data:
                     return Response({

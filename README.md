@@ -192,3 +192,7 @@ class GenericAPIView(APIView):
     | comment  | has_liked     |          | get       |
     | comment  | likes_count   |          | get       |
     | newsfeed | 内嵌 tweet      |          | get       |
+
+
+### 19-install-notification-api
+1. 本节主要安装了`django-notification-hq`并创建了`NotificaitonSerivce`服务可以在点赞和评论时向用户发送通知

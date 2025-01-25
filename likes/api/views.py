@@ -1,14 +1,13 @@
-from pickle import FALSE
-
 from rest_framework.decorators import action
 
+from inbox.services import NotificationService
 from likes.api.serializers import LikesSerializer, LikeSerializerForCreate, LikeSerializerForCancel
 from likes.models import Likes
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from tweets.utils.decotators import required_params
+from utils.decotators import required_params
 
 
 class LikesViewSet(GenericViewSet):
@@ -16,7 +15,7 @@ class LikesViewSet(GenericViewSet):
     serializer_class = LikeSerializerForCreate
     permission_classes = [IsAuthenticated]
 
-    @required_params(query_attr='data', params=['content_type','object_id'])
+    @required_params(method='POST', params=['content_type','object_id'])
     def create(self, request, *args, **kwargs):
         serializer = LikeSerializerForCreate(
             data=request.data,
@@ -28,14 +27,16 @@ class LikesViewSet(GenericViewSet):
                 "error": serializer.errors,
                 "message":"please check input."
             })
-        instance = serializer.save()
+        instance, created = serializer.get_or_create()
+        if created:
+            NotificationService.send_like_notification(instance)
         return Response(
             LikesSerializer(instance).data,
             status=status.HTTP_201_CREATED
         )
 
     @action(methods=['post'],detail=False)
-    @required_params(query_attr='data', params=['content_type','object_id'])
+    @required_params(method='POST', params=['content_type','object_id'])
     def cancel(self, request, *args, **kwargs):
         serializer=LikeSerializerForCancel(
             data=request.data,

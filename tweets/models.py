@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from likes.models import Likes
-from tweets.utils.time_helper import utc_now
+from utils.time_helper import utc_now
 
 
 # Create your models here.

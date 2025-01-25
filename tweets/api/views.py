@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 
@@ -7,7 +6,7 @@ from newsfeeds.services.newsfeed_service import NewsFeedService
 from testing.utils import CsrfExemptSessionAuthentication
 from tweets.api.serializers import TweetSerializer, TweetSerializerForCreate, TweetSerializerForDetail
 from tweets.models import Tweet
-from tweets.utils.decotators import required_params
+from utils.decotators import required_params
 
 
 # Create your views here.

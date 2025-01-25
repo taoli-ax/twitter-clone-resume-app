@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     #第三方的
     'rest_framework',
     'django_filters',
+    'notifications',
 ]
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',

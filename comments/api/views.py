@@ -6,6 +6,9 @@ from comments.api.serializers import CommentSerializer, CommentForCreateSerializ
 from comments.models import Comment
 from django_filters import rest_framework as filters
 
+from inbox.services import NotificationService
+
+
 class CommentViewSet(viewsets.GenericViewSet):
     serializer_class = CommentSerializer
     queryset = Comment.objects.all()
@@ -64,6 +67,7 @@ class CommentViewSet(viewsets.GenericViewSet):
         # save会出发create方法
         comment = serializer.save()
 
+        NotificationService.send_comment_notification(comment)
         return Response(
             CommentSerializer(
                 comment,

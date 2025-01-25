@@ -191,3 +191,7 @@
    - 测试点赞tweet时触发通知
    - 测试点赞comment时触发通知
    - 测试NotificationService本身
+
+
+### 20-notification-api-part-1
+1. `filterset_fields`的作用根据chatGPT解释，是在url中支持 `/api/notifications?unread=True`，这种方法来直接调用，以达到过滤的效果，因为`filter_backend`定义了

@@ -196,3 +196,10 @@ class GenericAPIView(APIView):
 
 ### 19-install-notification-api
 1. 本节主要安装了`django-notification-hq`并创建了`NotificaitonSerivce`服务可以在点赞和评论时向用户发送通知
+
+### 20-notification-api-part-1
+1. 标记全部已读： mark-all-as-read
+2. 获取未读：unread-count
+3. 获取所有：api/notifications/
+4. 获取未读的：api/notification?unread=True
+5. Notification的serializer展示大部分模型字段

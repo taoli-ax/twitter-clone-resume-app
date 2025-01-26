@@ -1,16 +1,16 @@
 from rest_framework import serializers
 
-from accounts.api.serializers import UserSerializer
+from accounts.api.serializers import UserSerializerForFriendship
 from friendships.models import FriendShip
 
 class FollowerSerializer(serializers.ModelSerializer):
-    user = UserSerializer(source="follower", read_only=True)
+    user = UserSerializerForFriendship(source="follower", read_only=True)
     class Meta:
         model = FriendShip
         fields = ("created_at","user")
 
 class FollowingSerializer(serializers.ModelSerializer):
-    user = UserSerializer(source="following", read_only=True)
+    user = UserSerializerForFriendship(source="following", read_only=True)
     class Meta:
         model = FriendShip
         fields = ("created_at","user")

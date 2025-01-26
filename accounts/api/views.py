@@ -4,22 +4,32 @@ from django.contrib.auth import (
     logout as django_logout
 )
 from django.contrib.auth.models import User
-from django.shortcuts import render
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
-from accounts.api.serializers import UserSerializer, SignUpSerializer, LoginSerializer
+from accounts.api.serializers import(
+    UserSerializer,
+    SignUpSerializer,
+    LoginSerializer,
+    UserProfileSerializerForUpdate,
+    UserSerializerWithProfile
+)
+from accounts.models import UserProfile
 from testing.utils import CsrfExemptSessionAuthentication
+from utils.permissions import IsObjectOwner
 
 
 # Create your views here.
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    serializer_class = UserSerializerWithProfile
+    permission_classes = (permissions.IsAdminUser,)
 
-
+class UserProfileViewSet(viewsets.GenericViewSet,
+                         viewsets.mixins.UpdateModelMixin):
+    queryset = UserProfile
+    serializer_class = UserProfileSerializerForUpdate
+    permission_classes = (IsObjectOwner,)
 
 
 class AccountViewSet(viewsets.ViewSet):

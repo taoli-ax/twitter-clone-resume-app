@@ -1,10 +1,9 @@
 from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
 
-from comments.api.permissions import IsObjectOwner
+from utils.permissions import IsObjectOwner
 from comments.api.serializers import CommentSerializer, CommentForCreateSerializer, CommentForUpdateSerializer
 from comments.models import Comment
-from django_filters import rest_framework as filters
 
 from inbox.services import NotificationService
 

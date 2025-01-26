@@ -203,3 +203,12 @@
 ### 21-userprofile-model-and-admin
 1. 用户注册之后，设置nickname，头像，等等，就是user的profile,根user的账户account,是一一对应，这很合理，常规网站都是这样操作的。
 2. property(get_profile)这真的很hack!我从来没用过，老师毕竟是有经验的人啊，膜拜令狐大侠
+
+
+### 22-upload-avatar
+1. UserProfileSerializer继承UserSerializer,profile本来就属于user,合理
+2. 继承UserSerializer的时候，同时继承了Meta里的模型，可就是可以用父类的字段，例如`profile.nickname`
+3. UserProfile可以对外隐藏了，因为他只是User的一个属性，haaaack了一下profile属性
+4. 为什么只有针对Tweet,Comment,FriendShip,Like的，没有针对Newsfeed
+5. IsAdminUser和IsAuthenticatedOrReadOnly有什么区别？
+6. `queryset = UserProfile`是不是一种简写 `queryset = UserProfile.objects.all()`?

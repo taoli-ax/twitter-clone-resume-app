@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'notifications',
+    'django_oss_storage',
 ]
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -146,6 +147,21 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATICFILES_STORAGE = 'django_oss_storage.backends.OssStaticStorage'
+DEFAULT_FILE_STORAGE = 'django_oss_storage.backends.OssMediaStorage'
+TESTING = ((" ".join(sys.argv)).find('manage.py test') != -1)
+if TESTING:
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
+OSS_ACCESS_KEY_ID =''
+OSS_ACCESS_KEY_SECRET = ''
+OSS_BUCKET_NAME = ''
+OSS_ENDPOINT=''
+REGION_NAME = ''
+
+MEDIA_ROOT = 'media/'
+
 try:
     from .local_settings import *
 except ImportError:

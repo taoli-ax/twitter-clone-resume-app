@@ -1,7 +1,9 @@
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
 # Create your tests here.
 from django.test import TestCase
+from testing.testcase import TestCase as DjangoTestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 from django.contrib.auth.models import User
@@ -10,7 +12,7 @@ from accounts.models import UserProfile
 
 
 # Create your tests here.
-
+USERPROFILE_UPDATE_URL='/api/profiles/{}/'
 
 class AccountsTests(TestCase):
     """
@@ -97,3 +99,38 @@ class AccountsTests(TestCase):
     def test_logout(self):
         response = self.client.post('/api/accounts/logout/')
         self.assertEqual(response.status_code,status.HTTP_200_OK)
+
+class UserProfileTests(DjangoTestCase):
+    def setUp(self):
+        self.python_client,self.python=self.create_user_and_client('python')
+        self.django_client,_=self.create_user_and_client('django')
+
+    def test_update_user_profile(self):
+        python_profile = self.python.profile
+        python_profile.nickname = 'RPython'
+        python_profile.save()
+
+        # 别人无法修改
+        url = USERPROFILE_UPDATE_URL.format(python_profile.id)
+        response = self.django_client.put(url,{'nickname': 'new nickname'})
+        self.assertEqual(response.status_code, 403)
+        python_profile.refresh_from_db()
+        self.assertEqual(python_profile.nickname, 'RPython')
+
+        # success update
+        response =self.python_client.put(url,{'nickname': 'RPython-1'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['nickname'], 'RPython-1')
+
+        # upload avatar
+        response = self.python_client.put(url,{
+            'avatar':SimpleUploadedFile(
+                name='avatar.jpg',
+                content=str.encode('my-avatar'),
+                content_type='image/jpeg'
+            )
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual('avatar' in response.data['avatar'], True)
+        python_profile.refresh_from_db()
+        self.assertNotEqual(python_profile.avatar, None)

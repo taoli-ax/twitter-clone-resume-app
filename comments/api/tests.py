@@ -118,6 +118,11 @@ class CommentsTest(TestCase):
         self.assertEqual(response.data['comments'][0]['content'],'3')
         self.assertEqual(response.data['comments'][0]['user']['id'],self.django.id)
 
+        profile=self.python.profile
+        self.assertEqual(response.data['comments'][0]['user']['nickname'],profile.nickname)
+        self.assertEqual(response.data['comments'][0]['user']['avatar_url'],None)
+
+
     def test_comments_count(self):
         url = TWEET_DETAILS_URL.format(self.tweet_django.id)
 

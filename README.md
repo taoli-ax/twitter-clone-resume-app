@@ -221,3 +221,8 @@ class GenericAPIView(APIView):
 2. userprofile的使用场景是注册之后，用户来不及设置头像和nickname,所以可以为null
 3. ImageField替换为FileField，据说一样的效果，ImageFiled不太好用
 
+
+### 23-upload-avatar
+1. AWS没有注册成功，正在发起客服工单，用阿里云OSS替代，对应的python-sdk库 `https://github.com/aliyun/django-oss-storage`
+2. Serializer中定义的fields 除了model本身的字段，还可以是自定义的验证字段，例如avatar_url,这些字段会序列化返回给前端
+

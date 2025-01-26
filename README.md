@@ -226,3 +226,7 @@ class GenericAPIView(APIView):
 1. AWS没有注册成功，正在发起客服工单，用阿里云OSS替代，对应的python-sdk库 `https://github.com/aliyun/django-oss-storage`
 2. Serializer中定义的fields 除了model本身的字段，还可以是自定义的验证字段，例如avatar_url,这些字段会序列化返回给前端
 
+
+### 24-photo-model-admin
+1. 创建了TweetPhoto,没啥太特别的，就是有个file字段，测试没测
+2. 更换了boto3和django-storages,无缝连接aws

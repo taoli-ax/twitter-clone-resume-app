@@ -214,3 +214,10 @@ class GenericAPIView(APIView):
 ```
 可以改变id=8的notification状态
 3. RESTFul默认把update方法绑定到PUT,并且在url中指定pk,这是RESTFul风格默认规定,要知道。
+
+
+### 22-userprofile-model-and-admin
+1. 动态属性添加到user中，使得user创建之后，当user.profile时，调用 get_or_create_userprofile,这是快捷的方式也很hack!
+2. userprofile的使用场景是注册之后，用户来不及设置头像和nickname,所以可以为null
+3. ImageField替换为FileField，据说一样的效果，ImageFiled不太好用
+

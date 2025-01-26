@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 
-from accounts.views import UserViewSet,AccountViewSet
+from accounts.api.views import UserViewSet,AccountViewSet
 from comments.api.views import CommentViewSet
 from friendships.api.views import FriendshipViewSet
 from inbox.api.views import NotificationViewSet

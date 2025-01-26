@@ -198,3 +198,8 @@
 
 ### 20-notification-api-part-2
 1. 如果没有继承`UpdateModelMixin`,自定义实现`update`方法，这时的`update`重载的是`RESTFul`风格的`update`动词，而不是 override了父类中的`update`方法
+
+
+### 21-userprofile-model-and-admin
+1. 用户注册之后，设置nickname，头像，等等，就是user的profile,根user的账户account,是一一对应，这很合理，常规网站都是这样操作的。
+2. property(get_profile)这真的很hack!我从来没用过，老师毕竟是有经验的人啊，膜拜令狐大侠

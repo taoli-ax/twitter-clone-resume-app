@@ -1,7 +1,7 @@
 from functools import wraps
 from rest_framework.response import Response
 
-def required_params(method='GET', params=None):
+def required_params(method:str='GET', params=None):
     if params is None:
         params = []
 

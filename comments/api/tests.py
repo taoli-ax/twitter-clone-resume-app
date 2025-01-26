@@ -1,3 +1,4 @@
+import time
 from http.client import responses
 
 from django.utils import timezone
@@ -56,6 +57,7 @@ class CommentsTest(TestCase):
         # 正常修改, 同时除了content之外都不会被改变
         before_create = comment.created_at
         before_update = comment.created_at
+        time.sleep(0.1)
         now = timezone.now()
         response = self.client_python.put(url,data={
             'user_id':self.django.id,
@@ -114,7 +116,6 @@ class CommentsTest(TestCase):
         })
         self.assertEqual(len(response.data['comments']),1)
         self.assertEqual(response.data['comments'][0]['content'],'3')
-        print(response.data['comments'][0]['user'])
         self.assertEqual(response.data['comments'][0]['user']['id'],self.django.id)
 
     def test_comments_count(self):

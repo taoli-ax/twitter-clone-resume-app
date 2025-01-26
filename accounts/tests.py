@@ -27,7 +27,6 @@ class AccountsTests(TestCase):
             email='test@gmail.com',
             password='test12345'
         )
-        print(self.user)
     def create_user(self,**kwargs):
         return User.objects.create_user(**kwargs)
 

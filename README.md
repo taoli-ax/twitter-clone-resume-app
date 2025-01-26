@@ -203,3 +203,14 @@ class GenericAPIView(APIView):
 3. 获取所有：api/notifications/
 4. 获取未读的：api/notification?unread=True
 5. Notification的serializer展示大部分模型字段
+
+### 21-notification-api-part-2
+1. serializerForUpdate重写RESTFul风格的update方法
+2. NotificationViewSet里重写RESTFul风格的update方法，虽然没有继承UpdateModelMixin,但是如果自定义update方法，一样可以被映射为update方法
+```shell
+    url = /api/notifications/8/
+    data_1={'unread':True}
+    data_2={'unread':False}
+```
+可以改变id=8的notification状态
+3. RESTFul默认把update方法绑定到PUT,并且在url中指定pk,这是RESTFul风格默认规定,要知道。

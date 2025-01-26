@@ -147,17 +147,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
-STATICFILES_STORAGE = 'django_oss_storage.backends.OssStaticStorage'
-DEFAULT_FILE_STORAGE = 'django_oss_storage.backends.OssMediaStorage'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 TESTING = ((" ".join(sys.argv)).find('manage.py test') != -1)
 if TESTING:
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
-OSS_ACCESS_KEY_ID =''
+OSS_ACCESS_KEY_ID = ''
 OSS_ACCESS_KEY_SECRET = ''
 OSS_BUCKET_NAME = ''
-OSS_ENDPOINT=''
+OSS_ENDPOINT= ''
 REGION_NAME = ''
 
 MEDIA_ROOT = 'media/'

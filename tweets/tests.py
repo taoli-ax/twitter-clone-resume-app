@@ -1,11 +1,12 @@
 import time
 from datetime import timedelta
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIClient
 from django.contrib.auth.models import User
 from testing.testcase import TestCase
 
-from tweets.models import Tweet
+from tweets.models import Tweet, TweetPhoto
 from utils.time_helper import utc_now
 
 LIST_TWEETS='/api/tweets/'
@@ -98,3 +99,14 @@ class TestTweet(TestCase):
         profile = self.user1.profile
         self.assertEqual(response.data['user']['nickname'],profile.nickname)
         self.assertEqual(response.data['user']['avatar_url'],None)
+
+
+    def test_create_photo(self):
+        tweet = self.create_tweet(self.user1)
+        photo = TweetPhoto.objects.create(
+            user=self.user1,
+            tweet=tweet,
+        )
+        self.assertEqual(photo.user, self.user1)
+        self.assertEqual(photo.tweet, tweet)
+        self.assertEqual(tweet.tweetphoto_set.count(), 1)

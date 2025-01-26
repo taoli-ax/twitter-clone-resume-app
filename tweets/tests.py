@@ -110,3 +110,57 @@ class TestTweet(TestCase):
         self.assertEqual(photo.user, self.user1)
         self.assertEqual(photo.tweet, tweet)
         self.assertEqual(tweet.tweetphoto_set.count(), 1)
+
+    def test_create_tweet_with_photos(self):
+        # 如果不清楚怎么测试，其实就是不知道自己写了什么，
+        # 对功能把握不全，其实对开发来说是危险的
+
+        # api-无图推
+        response = self.user1_client.post(CREATE_TWEETS, {
+            "content":"test content",
+            'files':[]
+        })
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['photo_url'],[])
+        self.assertEqual(TweetPhoto.objects.count(),0)
+        # api-单图推
+        file = SimpleUploadedFile(
+            'test.jpg',
+            str.encode('a fake image')
+        )
+        response = self.user1_client.post(CREATE_TWEETS, {
+            'content':'世界上的事',
+            'files':[file]
+        })
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual('test' in response.data['photo_url'][0],True)
+        self.assertEqual(TweetPhoto.objects.count(),1)
+        # api-多图推
+        file_1 = SimpleUploadedFile(
+            'test1.jpg',
+            str.encode('a fake image')
+        )
+        file_2 = SimpleUploadedFile(
+            'test2.jpg',
+            str.encode('a fake image')
+        )
+        response = self.user1_client.post(CREATE_TWEETS, {
+            'content': '世界上的事',
+            'files': [file_1, file_2]
+        })
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual('test1' in response.data['photo_url'][0], True)
+        self.assertEqual('test2' in response.data['photo_url'][1], True)
+
+        # api-10图推
+
+        buche_files = [SimpleUploadedFile(
+            'test{}.jpg'.format(_),
+            str.encode('a fake image')
+        ) for _ in range(10)]
+        response = self.user1_client.post(CREATE_TWEETS, {
+            'content': '世界上的事',
+            'files': buche_files
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(TweetPhoto.objects.count(), 3)

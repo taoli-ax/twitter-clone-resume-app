@@ -230,3 +230,8 @@ class GenericAPIView(APIView):
 ### 24-photo-model-admin
 1. 创建了TweetPhoto,没啥太特别的，就是有个file字段，测试没测
 2. 更换了boto3和django-storages,无缝连接aws
+
+### 25-tweet-photo-api
+1. 添加了 photo_url 作为TweetSerializer的字段
+2. 添加了 files作为 TweetSerializerForCreate的字段
+3. 添加了 TweetPhotoService 为创建tweet的photo服务

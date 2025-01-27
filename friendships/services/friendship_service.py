@@ -1,7 +1,3 @@
-from django.contrib.auth.models import User
-
-from accounts.api.serializers import UserSerializer
-from friendships.api.serializers import FollowerSerializer
 from friendships.models import FriendShip
 
 
@@ -29,3 +25,10 @@ class FriendShipService:
             following=user
         ).prefetch_related('follower')
         return [f.follower for f in followers]
+
+    @classmethod
+    def has_followed(cls, from_user,to_user):
+        return FriendShip.objects.filter(
+            follower=from_user,
+            following=to_user,
+        ).exists()

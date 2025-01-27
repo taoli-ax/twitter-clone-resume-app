@@ -235,3 +235,13 @@ class GenericAPIView(APIView):
 1. 添加了 photo_url 作为TweetSerializer的字段
 2. 添加了 files作为 TweetSerializerForCreate的字段
 3. 添加了 TweetPhotoService 为创建tweet的photo服务
+
+### 26-friendships-pagination
+1. Pagination 常用的参数请查看PREVIEW.md
+2. 业务上来说，查询一个用户的followers顺便可以查看用户是否同样follow了这些用户
+
+| follower | action | following | has_followed |
+|----------|--------|-----------|--------------|
+| A        | 关注     | B C       | True         |
+| B        | 没有     | A         | False        |
+| C        | 关注     | A         | True         |

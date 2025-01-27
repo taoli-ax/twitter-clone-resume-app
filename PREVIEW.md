@@ -196,19 +196,45 @@
 ### 20-notification-api-part-1
 1. `filterset_fields`的作用根据chatGPT解释，是在url中支持 `/api/notifications?unread=True`，这种方法来直接调用，以达到过滤的效果，因为`filter_backend`定义了
 
-### 20-notification-api-part-2
+### 21-notification-api-part-2
 1. 如果没有继承`UpdateModelMixin`,自定义实现`update`方法，这时的`update`重载的是`RESTFul`风格的`update`动词，而不是 override了父类中的`update`方法
 
 
-### 21-userprofile-model-and-admin
+### 22-userprofile-model-and-admin
 1. 用户注册之后，设置nickname，头像，等等，就是user的profile,根user的账户account,是一一对应，这很合理，常规网站都是这样操作的。
 2. property(get_profile)这真的很hack!我从来没用过，老师毕竟是有经验的人啊，膜拜令狐大侠
 
 
-### 22-upload-avatar
+### 23-upload-avatar
 1. UserProfileSerializer继承UserSerializer,profile本来就属于user,合理
 2. 继承UserSerializer的时候，同时继承了Meta里的模型，可就是可以用父类的字段，例如`profile.nickname`
 3. UserProfile可以对外隐藏了，因为他只是User的一个属性，haaaack了一下profile属性
 4. 为什么只有针对Tweet,Comment,FriendShip,Like的，没有针对Newsfeed
 5. IsAdminUser和IsAuthenticatedOrReadOnly有什么区别？
 6. `queryset = UserProfile`是不是一种简写 `queryset = UserProfile.objects.all()`?
+
+
+### 24-photos-model-admin
+
+### 25-tweet-photo-api
+
+### 26-friendship-pagination
+1. 新东西 `pagination_class`
+2. 查询的好友关系，可能存在几百条上千条的follower或者following,这时需要分页展示
+3. 传统分页vs瀑布分页
+4. FriendshipSerializer增加了has_followed字段，但不明白为什么要展示 任意用户是不是当前查询用户的粉丝的粉丝，
+   说人话就是，我去看某人的follower,同时也看到了我有没有follower他们，不确定，去twitter瞧一瞧，我++果然推特也有这个功能！
+5. 为什么pagination的返回不需要定义状态码？
+6. level up! FollowerSerializer现都加入了pagination的数据
+
+| 对象                       | 解释               |
+|--------------------------|------------------|
+| self.page                | 当前页面的结果集，gpt蜜汁解释 |
+| self.paginator           | 一个总的对象           |
+| self.paginator.count     | 结果集的总条数          |
+| self.paginator.number    | 当前页码             |
+| self.paginator.num_pages | 总页数              |
+| page_size=20             | 页面包含20条数据        |
+7. 超过最大的页码数依然是最大页码数返回，并不会报错
+8. 如果是匿名用户,get_has_followed直接返回False,令狐老师设计的果然严谨
+9. A关注了B,查询B的follower时A的状态显示为has_followed==True,反过来A查询的时候就是False,因为A没有follow过B

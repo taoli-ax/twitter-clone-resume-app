@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from testing.testcase import TestCase
 
 from tweets.models import Tweet, TweetPhoto
+from utils.paginations import EndlessPagination
 from utils.time_helper import utc_now
 
 LIST_TWEETS='/api/tweets/'
@@ -57,8 +58,8 @@ class TestTweet(TestCase):
         self.assertEqual(len(response.data), 2)
 
         # 检查帖子的排序是否按时间倒序
-        self.assertEqual(response.data[0]['id'], self.tweet2[1].id )
-        self.assertEqual(response.data[1]['id'], self.tweet2[0].id )
+        self.assertEqual(response.data['results'][0]['id'], self.tweet2[1].id )
+        self.assertEqual(response.data['results'][1]['id'], self.tweet2[0].id )
 
     def test_create_tweet(self):
         resp = self.anonymous_client.post(CREATE_TWEETS)
@@ -164,3 +165,51 @@ class TestTweet(TestCase):
         })
         self.assertEqual(response.status_code, 400)
         self.assertEqual(TweetPhoto.objects.count(), 3)
+
+    def test_endless_pagination(self):
+        page_size = EndlessPagination.page_size
+        for i  in range(page_size*2-len(self.tweet1)):
+            time.sleep(0.01)
+            self.tweet1.append(self.create_tweet(self.user1))
+
+        tweets = self.tweet1[::-1]
+
+        # 第一页推文,无需传created_at_lt就已经是第一页数据
+        response = self.user1_client.get(LIST_TWEETS,data={'user_id':self.user1.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['results']), page_size)
+        self.assertEqual(response.data['results'][0]['id'], tweets[0].id)
+        self.assertEqual(response.data['results'][1]['id'], tweets[1].id)
+        self.assertEqual(response.data['results'][page_size-1]['id'], tweets[page_size-1].id)
+
+        # 翻页第二页
+        response = self.user1_client.get(LIST_TWEETS,data={
+            'user_id':self.user1.id,
+            'created_at_lt':tweets[page_size-1].created_at,
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['results']), page_size)
+        self.assertEqual(response.data['has_next_page'],False)
+        self.assertEqual(response.data['results'][0]['id'], tweets[page_size].id)
+        self.assertEqual(response.data['results'][1]['id'], tweets[page_size+1].id)
+        self.assertEqual(response.data['results'][page_size-1]['id'], tweets[page_size*2-1].id)
+
+        # pull latest newsfeed for uer-self
+        response = self.user1_client.get(LIST_TWEETS,data={
+            'user_id':self.user1.id,
+            'created_at_gt':tweets[0].created_at,
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['has_next_page'],False)
+        self.assertEqual(len(response.data['results']), 0)
+
+        new_tweet = self.create_tweet(self.user1)
+        response = self.user1_client.get(LIST_TWEETS,data={
+            'user_id':self.user1.id,
+            'created_at_gt':tweets[0].created_at,
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['has_next_page'],False)
+        self.assertEqual(response.data['results'][0]['id'], new_tweet.id)
+

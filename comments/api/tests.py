@@ -133,7 +133,7 @@ class CommentsTest(TestCase):
 
         # test tweet list api
         response = self.client_python.get(TWEET_URL, data={'user_id':self.python.id})
-        self.assertEqual(response.data[0]['comment_count'], 0)
+        self.assertEqual(response.data['results'][0]['comment_count'], 0)
 
         # test newsfeed api
         self.create_comment(self.python, self.tweet_django)

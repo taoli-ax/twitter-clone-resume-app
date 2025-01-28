@@ -7,6 +7,7 @@ from testing.utils import CsrfExemptSessionAuthentication
 from tweets.api.serializers import TweetSerializer, TweetSerializerForCreate, TweetSerializerForDetail
 from tweets.models import Tweet
 from utils.decotators import required_params
+from utils.paginations import EndlessPagination
 
 
 # Create your views here.
@@ -23,6 +24,7 @@ class TweetViewSet(viewsets.GenericViewSet,
     queryset = Tweet.objects.all()
     serializer_class = TweetSerializerForCreate
     authentication_classes = (CsrfExemptSessionAuthentication,)
+    pagination_class = EndlessPagination
 
     def get_permissions(self):
         if self.action in  ['list','retrieve']:
@@ -33,12 +35,13 @@ class TweetViewSet(viewsets.GenericViewSet,
     def list(self, request, *args, **kwargs):
         # 根据用户id展示对应的推文
         tweets = Tweet.objects.filter(user=request.query_params["user_id"])
+        page = self.paginate_queryset(tweets)
         serializer = TweetSerializer(
-            tweets,
+            page,
             context={'request': request},
             many=True) # 多条数据用many
         # 不需要调用is_valid() 因为没有用户输入，不需要反序列化验证
-        return Response(serializer.data)
+        return self.get_paginated_response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         tweet = self.get_object()

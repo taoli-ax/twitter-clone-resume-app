@@ -142,7 +142,7 @@ class CommentsTest(TestCase):
         response = self.client_django.get(NEWSFEED)
         self.assertEqual(response.status_code,200)
         # 记住，只有tweet才有评论数
-        self.assertEqual(response.data['newsfeed'][0]['tweet']['comment_count'],1)
+        self.assertEqual(response.data['results'][0]['tweet']['comment_count'],1)
 
     def test_comment_create_api_trigger_notification(self):
         # 要通过api测试，而不是直接创建模型实例

@@ -1,9 +1,12 @@
+import time
+
 from rest_framework import status
 
 from friendships.models import FriendShip
 from testing.testcase import TestCase
 from rest_framework.test import APIClient
 
+from utils.paginations import EndlessPagination
 
 NEWSFEED='/api/newsfeeds/'
 TWEET='/api/tweets/'
@@ -37,19 +40,72 @@ class NewsFeedsTestCase(TestCase):
         # 一开始啥也没有
         response = self.django_client.get(NEWSFEED)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['newsfeed']),0)
+        self.assertEqual(len(response.data['results']),0)
 
         # 发个推,自己看一下
         self.django_client.post(TWEET, {"content": "hello python"})
         response = self.django_client.get(NEWSFEED)
-        self.assertEqual(len(response.data['newsfeed']),1)
+        self.assertEqual(len(response.data['results']),1)
         # 先关注，再看粉丝的推文
         self.django_client.post(FOLLOW.format(self.python.id))
         response = self.python_client.post(TWEET,{"content":"hello django"})
         tweet_id_0 = response.data['id']
         response = self.django_client.get(NEWSFEED)
-        self.assertEqual(len(response.data['newsfeed']),2)
-        self.assertEqual(response.data['newsfeed'][0]['tweet']['id'], tweet_id_0)
+        self.assertEqual(len(response.data['results']),2)
+        self.assertEqual(response.data['results'][0]['tweet']['id'], tweet_id_0)
 
 
 
+    def test_paginated_newsfeeds(self):
+        page_size = EndlessPagination.page_size
+        # 创建40推文
+        followed_user = self.create_user(username="followed_user") # 推文本来是要好友关系支撑的，这里老师用的命名是模拟这是一个已关注的好友
+        newsfeeds = []
+        for i in range(page_size*2):
+            tweet = self.create_tweet(followed_user)
+            time.sleep(0.01)
+            newsfeeds.append(self.create_newsfeed(user=self.python,tweet=tweet))
+
+        newsfeeds = newsfeeds[::-1]
+
+        # 第一页的newsfeed
+        response = self.python_client.get(NEWSFEED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # 验证paginated_response
+        self.assertEqual(len(response.data['results']), page_size)
+        self.assertEqual(response.data['results'][0]['id'], newsfeeds[0].id)
+        self.assertEqual(response.data['results'][1]['id'], newsfeeds[1].id)
+        self.assertEqual(response.data['results'][page_size-1]['id'], newsfeeds[page_size-1].id)
+
+        # 第二页
+        response = self.python_client.get(NEWSFEED, data={
+            'user_id': self.python.id,
+            'created_at_lt': newsfeeds[page_size-1].created_at,
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['has_next_page'], False)
+        self.assertEqual(len(response.data['results']), page_size)
+        self.assertEqual(response.data['results'][0]['id'], newsfeeds[page_size].id)
+        self.assertEqual(response.data['results'][1]['id'], newsfeeds[page_size+1].id)
+        self.assertEqual(response.data['results'][page_size-1]['id'], newsfeeds[2*page_size-1].id)
+
+        # pull latest newsfeed
+        response = self.python_client.get(NEWSFEED, data={
+            'user_id': self.python.id,
+            'created_at_gt': newsfeeds[0].created_at,
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # 不同于上滑获取过去的newsfeed,下拉是更新最新的数据
+        self.assertEqual(response.data['has_next_page'], False)
+        self.assertEqual(len(response.data['results']), 0)
+
+        new_tweet = self.create_tweet(followed_user)
+        new_newsfeed = self.create_newsfeed(user=self.python, tweet=new_tweet)
+        response = self.python_client.get(NEWSFEED, data={
+            'user_id': self.python.id,
+            'created_at_gt': newsfeeds[0].created_at,
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['has_next_page'], False)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['id'], new_newsfeed.id)

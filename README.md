@@ -245,3 +245,15 @@ class GenericAPIView(APIView):
 | A        | 关注     | B C       | True         |
 | B        | 没有     | A         | False        |
 | C        | 关注     | A         | True         |
+
+
+### 27-tweet-pagination
+1. 介绍了endlessPagination的方法
+2. 上滑-更新最新的数据-created_at_gt
+3. 下滑-翻页数据-created_at_lt
+4. len(queryset[:page_size+1])>page_size 有下一页
+
+### 28-newsfeed-pagination
+1. 同上，逻辑复用 EndlessPagination
+
+### 29-

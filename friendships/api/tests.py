@@ -3,10 +3,12 @@
 from rest_framework import status
 
 from friendships.api.paginations import FriendShipPagination
+from friendships.services.friendship_service import FriendShipService
 from testing.testcase import TestCase as DjangoTestCase
 from rest_framework.test import APIClient
 
 from friendships.models import FriendShip
+from tweets.cache import FOLLOWINGS_PATTERN
 
 FOLLOW= '/api/friendships/{}/follow/'
 FOLLOWER = '/api/friendships/{}/followers/'
@@ -15,7 +17,7 @@ FOLLOWING = '/api/friendships/{}/following/'
 class FriendshipTests(DjangoTestCase):
     def setUp(self):
 
-
+        self.clear_cache()
         self.user_zhunti_client= APIClient()
         self.zhunti = self.create_user(username="zhun ti")
         self.user_zhunti_client.force_authenticate(user=self.zhunti)
@@ -213,4 +215,23 @@ class FriendshipTests(DjangoTestCase):
         self.assertEqual(response.data['page_number'], 1)
         self.assertEqual(response.data['has_next_page'],True)
 
+    def test_following_cache(self):
+        user1 = self.create_user('user1')
+        user2 = self.create_user('user2')
+        python = self.create_user('python')
+        djagno = self.create_user('django')
+        # 创建3个followings
+        for following in [user1,user2,djagno]:
+            FriendShip.objects.create(follower=python,following=following)
+        # 模拟创建好友关系后删除key,以获取最新数据
+        FriendShipService.invalid_following_cache(python.id)
+        # 从DB查询following_user_id_set
+        following_user_id_set = FriendShipService.get_following_user_id_set(python.id)
+        self.assertEqual(following_user_id_set,{user1.id,user2.id,djagno.id})
 
+        # 改动了数据库，Invalid key
+        FriendShip.objects.filter(follower=python, following=djagno).delete()
+        FriendShipService.invalid_following_cache(python.id)
+        # 直接查询数据库
+        following_user_id_set = FriendShipService.get_following_user_id_set(python.id)
+        self.assertEqual(following_user_id_set,{user1.id,user2.id})

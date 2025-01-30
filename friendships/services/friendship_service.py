@@ -1,5 +1,10 @@
 from friendships.models import FriendShip
+from django.core.cache import caches
+from django.conf import settings
 
+from tweets.cache import FOLLOWINGS_PATTERN
+
+cache = caches['testing'] if settings.TESTING else caches['default']
 
 class FriendShipService:
     @classmethod
@@ -32,3 +37,22 @@ class FriendShipService:
             follower=from_user,
             following=to_user,
         ).exists()
+
+    @classmethod
+    def get_following_user_id_set(cls, from_user):
+        key = FOLLOWINGS_PATTERN.format(user_id=from_user)
+        user_id_set = cache.get(key)
+        # 谨防{} ，set()， ''这些空值，所以严格检查是否为None
+        if user_id_set is not None:
+            return user_id_set
+
+        friendships =FriendShip.objects.filter(follower=from_user)
+
+        user_id_set = set([fs.following_id for fs in friendships])
+        cache.set(from_user, user_id_set)
+        return user_id_set
+
+    @classmethod
+    def invalid_following_cache(cls, from_user):
+        key = FOLLOWINGS_PATTERN.format(user_id=from_user)
+        cache.delete(key)

@@ -256,4 +256,8 @@ class GenericAPIView(APIView):
 ### 28-newsfeed-pagination
 1. 同上，逻辑复用 EndlessPagination
 
-### 29-
+### 29-add-memcached-for-friendship
+1. windows开发和vagrant上开发区别
+    - `pip install pymemcached` 适应django>3.2
+    - `CACHES.testing.BACKENDS='django.core.cache.backends.memcached.PyMemcacheCache'`
+    - windows上网络和internet设置-高级网络设置-高级共享设置，公共网络需要打开`发现网络`

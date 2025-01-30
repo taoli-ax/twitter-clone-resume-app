@@ -19,11 +19,11 @@ class FriendshipTests(DjangoTestCase):
 
         self.clear_cache()
         self.user_zhunti_client= APIClient()
-        self.zhunti = self.create_user(username="zhun ti")
+        self.zhunti = self.create_user(username="zhun_ti")
         self.user_zhunti_client.force_authenticate(user=self.zhunti)
 
         self.user_zhunti_shadow_client= APIClient()
-        self.zhunti_shadow = self.create_user(username="zhunti shadow 1")
+        self.zhunti_shadow = self.create_user(username="zhunti_shadow_1")
         self.user_zhunti_shadow_client.force_authenticate(user=self.zhunti_shadow)
 
         for i in range(3):

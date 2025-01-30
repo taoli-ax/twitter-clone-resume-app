@@ -44,7 +44,7 @@ class FollowingSerializer(serializers.ModelSerializer,FollowingUserIdMixin):
     def get_has_followed(self, obj):
         # 这是以前说的，每次查询都要直接访问数据库的情况，现在走缓存了
         # return FriendShipService.has_followed(self.context["request"].user, obj.following)
-        return obj.following in self.following_user_id_set
+        return obj.following_id in self.following_user_id_set
 
 
 class SerializerForCreateFriendShip(serializers.ModelSerializer):

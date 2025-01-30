@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-8+%b@o^__)s(te13dclq73ee0g&(pirwfzfgb_j5*5*z6!=t^^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*','0.0.0.0','127.0.0.1','localhost','192.168.33.10']
 
 
 # Application definition
@@ -102,6 +102,14 @@ WSGI_APPLICATION = 'resume_app.wsgi.application'
 
 DATABASES = {
     'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'twitter',
+        'USER': 'root',
+        'PASSWORD': 'yourpassword',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    },
+    'windows': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'resume_app',
         'USER': 'postgres',

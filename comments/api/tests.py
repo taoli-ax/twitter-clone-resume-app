@@ -56,8 +56,7 @@ class CommentsTest(TestCase):
 
         # 正常修改, 同时除了content之外都不会被改变
         before_create = comment.created_at
-        before_update = comment.created_at
-        time.sleep(0.1)
+        before_update = comment.updated_at
         now = timezone.now()
         response = self.client_python.put(url,data={
             'user_id':self.django.id,

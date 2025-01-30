@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from friendships.api.paginations import FriendShipPagination
 from friendships.models import FriendShip
 from friendships.api.serializers import SerializerForCreateFriendShip, FollowerSerializer,FollowingSerializer
+from friendships.services.friendship_service import FriendShipService
 from testing.utils import CsrfExemptSessionAuthentication
 
 
@@ -63,6 +64,7 @@ class FriendshipViewSet(viewsets.GenericViewSet):
                 "errors":serializer.errors,
             }, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
+        FriendShipService.invalid_following_cache(request.user.id)
         return Response({"success":True}, status=status.HTTP_201_CREATED)
 
     @action(methods=['POST'], detail=True, permission_classes=[IsAuthenticated])
@@ -73,4 +75,6 @@ class FriendshipViewSet(viewsets.GenericViewSet):
                 "errors":["You can't unfollow yourself"],
             })
         delete,_ = FriendShip.objects.filter(following=pk,follower=request.user).delete()
+
+        FriendShipService.get_following_user_id_set(request.user.id)
         return Response({"success": True,"delete": delete})

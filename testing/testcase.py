@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 
 from django.contrib.auth.models import User
+from django.core.cache import caches
 from django.test import TestCase as DjangoTestCase
 from rest_framework.test import APIClient
 
@@ -14,6 +15,9 @@ class TestCase(DjangoTestCase):
     """
     让其他模块的测试继承这个基类
     """
+    def clear_cache(self):
+        caches['testing'].clear()
+
     @property
     def anonymous_client(self):
         # 属性级的懒加载
@@ -56,3 +60,4 @@ class TestCase(DjangoTestCase):
         self.user_client = APIClient()
         self.user_client.force_authenticate(user=user)
         return self.user_client,user
+

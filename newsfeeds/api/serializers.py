@@ -9,4 +9,4 @@ class NewsFeedSerializer(serializers.ModelSerializer):
     # 为什么user不需要Serializer
     class Meta:
         model = NewsFeed
-        fields = ('id','user','tweet','created_at')
+        fields = ('id','tweet','created_at')

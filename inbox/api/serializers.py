@@ -6,7 +6,7 @@ from accounts.api.serializers import UserSerializer
 
 
 class NotificationSerializer(serializers.ModelSerializer):
-    recipient = UserSerializer()
+    recipient = UserSerializer(source='cached_user')
     class Meta:
         model = Notification
         fields=(

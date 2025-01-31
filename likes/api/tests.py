@@ -14,6 +14,7 @@ NEWSFEED_LIST_URL = '/api/newsfeeds/'
 
 class LikesApiTests(TestCase):
     def setUp(self):
+        self.clear_cache()
         self.django_client , self.django = self.create_user_and_client('django')
         self.python_client , self.python = self.create_user_and_client('python')
         self.tweet_for_cancel = ""

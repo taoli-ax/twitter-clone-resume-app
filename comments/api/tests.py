@@ -19,6 +19,7 @@ LIKES_CREATE_URL = '/api/likes/'
 
 class CommentsTest(TestCase):
     def setUp(self):
+        self.clear_cache()
         self.client_django = APIClient()
         self.django = self.create_user(username="django")
         self.client_django.force_authenticate(user=self.django)

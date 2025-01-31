@@ -18,6 +18,7 @@ TWEET_RETRIEVE_API ='/api/tweets/{}/'
 # Create your tests here.
 class TestTweet(TestCase):
     def setUp(self):
+        self.clear_cache()
         self.user1_client = APIClient()
         self.user1= self.create_user("adobe","adobe@gmail.com")
         self.user1_client.force_authenticate(user=self.user1)

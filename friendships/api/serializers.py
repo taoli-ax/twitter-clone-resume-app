@@ -22,7 +22,7 @@ class FollowingUserIdMixin:
 
 
 class FollowerSerializer(serializers.ModelSerializer):
-    user = UserSerializerForFriendship(source="follower")
+    user = UserSerializerForFriendship(source="cached_follower")
     has_followed = serializers.SerializerMethodField()
     class Meta:
         model = FriendShip
@@ -35,7 +35,7 @@ class FollowerSerializer(serializers.ModelSerializer):
 
 
 class FollowingSerializer(serializers.ModelSerializer,FollowingUserIdMixin):
-    user = UserSerializerForFriendship(source="following", read_only=True)
+    user = UserSerializerForFriendship(source="cached_following")
     has_followed = serializers.SerializerMethodField()
     class Meta:
         model = FriendShip

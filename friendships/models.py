@@ -1,5 +1,10 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import pre_delete, post_save
+
+from accounts.services import UserService
+from friendships.listeners import friendship_changed
+
 
 # Create your models here.
 class FriendShip(models.Model):
@@ -31,4 +36,14 @@ class FriendShip(models.Model):
         ]
         unique_together = ('follower', 'following')
 
+    @property
+    def cached_follower(self):
+        return UserService.get_user_through_cache(self.follower_id)
 
+    @property
+    def cached_following(self):
+        return UserService.get_user_through_cache(self.following_id)
+
+
+pre_delete.connect(friendship_changed,sender=FriendShip)
+post_save.connect(friendship_changed,sender=FriendShip)

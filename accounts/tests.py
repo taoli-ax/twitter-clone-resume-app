@@ -3,6 +3,7 @@ from testing.testcase import TestCase
 
 class UserProfileTest(TestCase):
     def setUp(self):
+        self.clear_cache()
         self.django_client, self.django=self.create_user_and_client('django')
 
     def test_user_profile(self):

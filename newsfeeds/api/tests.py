@@ -2,6 +2,7 @@ import time
 
 from rest_framework import status
 
+import newsfeeds
 from friendships.models import FriendShip
 from testing.testcase import TestCase
 from rest_framework.test import APIClient
@@ -15,7 +16,7 @@ FOLLOW='/api/friendships/{}/follow/'
 class NewsFeedsTestCase(TestCase):
     def setUp(self):
 
-
+        self.clear_cache()
         self.django_client = APIClient()
         self.django = self.create_user('django')
         self.django_client.force_authenticate(self.django)
@@ -109,3 +110,31 @@ class NewsFeedsTestCase(TestCase):
         self.assertEqual(response.data['has_next_page'], False)
         self.assertEqual(len(response.data['results']), 1)
         self.assertEqual(response.data['results'][0]['id'], new_newsfeed.id)
+
+    def test_user_cached(self):
+        profile = self.django.profile
+        profile.nickname = 'django_nickname'
+        profile.save()
+
+        self.assertEqual(self.python.username,'python')
+        self.create_newsfeed(self.django, self.create_tweet(self.python))
+        self.create_newsfeed(self.django, self.create_tweet(self.django))
+
+        response = self.django_client.get(NEWSFEED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 2)
+        self.assertEqual(response.data['results'][0]['tweet']['user']['nickname'], 'django_nickname')
+        self.assertEqual(response.data['results'][0]['tweet']['user']['username'], 'django')
+        self.assertEqual(response.data['results'][1]['tweet']['user']['username'], 'python')
+
+        profile.nickname='changed_nickname'
+        profile.save()
+        self.python.username = 'changed_username'
+        self.python.save()
+
+        response = self.django_client.get(NEWSFEED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 2)
+        self.assertEqual(response.data['results'][0]['tweet']['user']['nickname'], 'changed_nickname')
+        self.assertEqual(response.data['results'][0]['tweet']['user']['username'], 'django')
+        self.assertEqual(response.data['results'][1]['tweet']['user']['username'], 'changed_username')

@@ -4,6 +4,7 @@ from django.db.models.signals import pre_delete, post_save
 
 from accounts.services import UserService
 from friendships.listeners import friendship_changed
+from utils.memcached_helper import MemcachedHelper
 
 
 # Create your models here.
@@ -38,11 +39,11 @@ class FriendShip(models.Model):
 
     @property
     def cached_follower(self):
-        return UserService.get_user_through_cache(self.follower_id)
+        return MemcachedHelper.get_object_through_cache(User, self.follower_id)
 
     @property
     def cached_following(self):
-        return UserService.get_user_through_cache(self.following_id)
+        return MemcachedHelper.get_object_through_cache(User, self.following_id)
 
 
 pre_delete.connect(friendship_changed,sender=FriendShip)

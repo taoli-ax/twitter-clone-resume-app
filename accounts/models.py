@@ -2,7 +2,9 @@ from django.contrib.auth.models import User, AbstractUser
 from django.db import models
 from django.db.models.signals import post_save,pre_delete
 
-from accounts.listeners import user_changed,userprofile_changed
+from accounts.listeners import userprofile_changed
+from utils.listeners import invalid_object_cache
+
 
 # Create your models here.
 class UserProfile(models.Model):
@@ -31,15 +33,10 @@ def get_or_create_user_profile(user):
 
 User.profile=property(get_or_create_user_profile)
 # 固然可以这样，但是不够优雅，我们用hook up的方式进一步封装
-# pre_delete.connect(UserService.invalid_user_cache, sender=User)
-# post_save.connect(UserService.invalid_user_cache, sender=User)
-
-# pre_delete.connect(UserService.invalid_userprofile_cache, sender=UserProfile)
-# post_save.connect(UserService.invalid_userprofile_cache, sender=UserProfile)
 
 # 自动发送信号，当删除user时自动删除cached,当创建user时自动清除cached
-pre_delete.connect(user_changed, sender=User)
-post_save.connect(user_changed, sender=User)
+pre_delete.connect(invalid_object_cache, sender=User)
+post_save.connect(invalid_object_cache, sender=User)
 
 pre_delete.connect(userprofile_changed, sender=UserProfile)
 post_save.connect(userprofile_changed, sender=UserProfile)

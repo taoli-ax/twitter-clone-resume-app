@@ -9,6 +9,7 @@ from comments.models import Comment
 from likes.models import Likes
 from newsfeeds.models import NewsFeed
 from tweets.models import Tweet
+from utils.redis_client import RedisClient
 
 
 class TestCase(DjangoTestCase):
@@ -16,6 +17,7 @@ class TestCase(DjangoTestCase):
     让其他模块的测试继承这个基类
     """
     def clear_cache(self):
+        RedisClient.clear()
         caches['testing'].clear()
 
     @property

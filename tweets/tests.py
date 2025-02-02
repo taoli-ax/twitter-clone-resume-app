@@ -7,7 +7,10 @@ from django.contrib.auth.models import User
 from testing.testcase import TestCase
 
 from tweets.models import Tweet, TweetPhoto
+from utils.json_encoder import JSONEncoder
 from utils.paginations import EndlessPagination
+from utils.redis_client import RedisClient
+from utils.redis_serializers import DjangoModelSerializer
 from utils.time_helper import utc_now
 
 LIST_TWEETS='/api/tweets/'
@@ -214,3 +217,13 @@ class TestTweet(TestCase):
         self.assertEqual(response.data['has_next_page'],False)
         self.assertEqual(response.data['results'][0]['id'], new_tweet.id)
 
+    def test_tweet_cache_in_redis(self):
+        conn = RedisClient.get_connection()
+        tweet = self.create_tweet(self.user1)
+        serializer_data = DjangoModelSerializer.serialize(tweet)
+        conn.set(f'tweet:{tweet.id}',serializer_data)
+        self.assertEqual(conn.get('tweet:NotExist'), None)
+
+        value = conn.get(f'tweet:{tweet.id}')
+        deserializer_data = DjangoModelSerializer.deserialize(value)
+        self.assertEqual(deserializer_data, tweet)

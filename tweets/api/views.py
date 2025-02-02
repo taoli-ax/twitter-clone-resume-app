@@ -14,8 +14,8 @@ from utils.paginations import EndlessPagination
 
 
 class TweetViewSet(viewsets.GenericViewSet,
-                   mixins.ListModelMixin,
-                   mixins.CreateModelMixin,
+                   # mixins.ListModelMixin,
+                   # mixins.CreateModelMixin,
                    mixins.RetrieveModelMixin):
     """
     继承了最常用的GenericViewSet,展现选手对框架的熟练度

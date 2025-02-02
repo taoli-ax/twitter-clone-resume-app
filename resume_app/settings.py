@@ -182,6 +182,13 @@ REGION_NAME = ''
 
 MEDIA_ROOT = 'media/'
 
+REDIS_HOST = '127.0.0.1'
+REDIS_PORT = 6379
+REDIS_DB = 0 if TESTING else 1
+REDIS_KEY_EXPIRE_TIME = 60 * 60 * 24 * 7 # in seconds
+
+
+
 try:
     from .local_settings import *
 except ImportError:

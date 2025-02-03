@@ -261,3 +261,14 @@ class GenericAPIView(APIView):
     - `pip install pymemcached` 适应django>3.2
     - `CACHES.testing.BACKENDS='django.core.cache.backends.memcached.PyMemcacheCache'`
     - windows上网络和internet设置-高级网络设置-高级共享设置，公共网络需要打开`发现网络`
+
+
+#### 33-cache-tweet-list-in-redis
+1. 如果期望顺序读取，那么插入应该用rpush，从右边插
+| 插入方式  | 	读取顺序（LRANGE 0 -1） | 	适用场景           |
+|-------|--------------------|-----------------|
+| RPUSH | 	按插入顺序返回 ✅	        | 队列（FIFO）、时间序列存储 |
+| LPUSH | 	插入顺序相反 ❌	         | 栈（LIFO）、倒序存储    |
+
+
+

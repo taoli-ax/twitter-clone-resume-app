@@ -6,6 +6,7 @@ from newsfeeds.services.newsfeed_service import NewsFeedService
 from testing.utils import CsrfExemptSessionAuthentication
 from tweets.api.serializers import TweetSerializer, TweetSerializerForCreate, TweetSerializerForDetail
 from tweets.models import Tweet
+from tweets.services import TweetService
 from utils.decotators import required_params
 from utils.paginations import EndlessPagination
 
@@ -16,7 +17,8 @@ from utils.paginations import EndlessPagination
 class TweetViewSet(viewsets.GenericViewSet,
                    # mixins.ListModelMixin,
                    # mixins.CreateModelMixin,
-                   mixins.RetrieveModelMixin):
+                   mixins.RetrieveModelMixin
+                   ):
     """
     继承了最常用的GenericViewSet,展现选手对框架的熟练度
     精确继承了ListModelMixin和CreateModelMixin类，能看出选手对框架的理解是准确的
@@ -34,7 +36,8 @@ class TweetViewSet(viewsets.GenericViewSet,
     @required_params(params=['user_id'])
     def list(self, request, *args, **kwargs):
         # 根据用户id展示对应的推文
-        tweets = Tweet.objects.filter(user=request.query_params["user_id"])
+        # 更改为先从redis cache获取
+        tweets = TweetService.get_cached_tweets(user_id=request.query_params["user_id"])
         page = self.paginate_queryset(tweets)
         serializer = TweetSerializer(
             page,

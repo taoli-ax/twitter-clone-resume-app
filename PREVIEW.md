@@ -238,3 +238,10 @@
 7. 超过最大的页码数依然是最大页码数返回，并不会报错
 8. 如果是匿名用户,get_has_followed直接返回False,令狐老师设计的果然严谨
 9. A关注了B,查询B的follower时A的状态显示为has_followed==True,反过来A查询的时候就是False,因为A没有follow过B
+
+
+### 33-cache-tweet-list-in-redis
+1. list读取的时候走一遍预热缓存
+2. 保存的时候invalid缓存
+3. 保存之前先删除，先发送删除信号invalid cache，再发送保存信号 lpush cache
+

@@ -272,3 +272,5 @@ class GenericAPIView(APIView):
 
 
 
+#### 34-cache-newsfeed-list-in-redis
+1. debug 一晚上，虽然锻炼了思维,但反应了自己状态很差，看老师的代码都看不清全部

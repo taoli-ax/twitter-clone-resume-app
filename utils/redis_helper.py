@@ -17,7 +17,7 @@ class RedisHelper:
 
         for i in serialized_list:
             conn.rpush(key, i)
-            conn.expire(key, settings.REDIS_EXPIRE_TIME)
+            conn.expire(key, settings.REDIS_KEY_EXPIRE_TIME)
 
     @classmethod
     def load_objects(cls, key, queryset):
@@ -31,7 +31,7 @@ class RedisHelper:
             for serialized_data in serialized_list:
                 # 拿出来的object有些无法直接反序列化，比如timestamp,promise对象
                 deserialized_data = DjangoModelSerializer.deserialize(serialized_data)
-                queryset.append(deserialized_data)
+                objects.append(deserialized_data)
             return objects
         # miss cache , set into cache
         cls._load_object_to_cache(key, queryset)

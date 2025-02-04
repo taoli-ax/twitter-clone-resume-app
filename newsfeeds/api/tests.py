@@ -48,7 +48,8 @@ class NewsFeedsTestCase(TestCase):
         response = self.django_client.get(NEWSFEED)
         self.assertEqual(len(response.data['results']), 1)
         # 先关注，再看粉丝的推文
-        self.django_client.post(FOLLOW.format(self.python.id))
+        response=self.django_client.post(FOLLOW.format(self.python.id))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response = self.python_client.post(TWEET, {"content": "hello django"})
         tweet_id_0 = response.data['id']
         response = self.django_client.get(NEWSFEED)

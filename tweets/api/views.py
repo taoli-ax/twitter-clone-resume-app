@@ -2,14 +2,14 @@ from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 
 from rest_framework import permissions
-from newsfeeds.services.newsfeed_service import NewsFeedService
+from newsfeeds.services import NewsFeedService
 from testing.utils import CsrfExemptSessionAuthentication
 from tweets.api.serializers import TweetSerializer, TweetSerializerForCreate, TweetSerializerForDetail
 from tweets.models import Tweet
 from tweets.services import TweetService
 from utils.decotators import required_params
 from utils.paginations import EndlessPagination
-
+from newsfeeds.models import NewsFeed
 
 # Create your views here.
 

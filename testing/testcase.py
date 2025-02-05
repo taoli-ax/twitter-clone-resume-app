@@ -6,6 +6,7 @@ from django.test import TestCase as DjangoTestCase
 from rest_framework.test import APIClient
 
 from comments.models import Comment
+from friendships.models import FriendShip
 from likes.models import Likes
 from newsfeeds.models import NewsFeed
 from tweets.models import Tweet
@@ -28,6 +29,9 @@ class TestCase(DjangoTestCase):
         self._anonymous_client = APIClient()
 
         return self._anonymous_client
+
+    def create_friendship(self, follower, following):
+        FriendShip.objects.create(follower=follower, following=following)
     def create_user(self, username, email=None, password=None):
         if not password:
             password = '<PASSWORD>'

@@ -23,7 +23,10 @@ class NewsFeedViewSet(viewsets.GenericViewSet):
 
     def list(self, request):
         newsfeed = NewsFeedService.get_cached_newsfeed(request.user.id)
-        page =self.paginate_queryset(newsfeed)
+        page = self.paginator.paginate_cached_list(newsfeed,request)
+        if page is None:
+            queryset = NewsFeed.objects.filter(user=self.request.user)
+            page = self.paginate_queryset(queryset)
         serializer = NewsFeedSerializer(
             page,
             context={'request': request},

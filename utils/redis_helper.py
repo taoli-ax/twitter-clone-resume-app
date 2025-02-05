@@ -28,7 +28,7 @@ class RedisHelper:
         if conn.exists(key):
             serialized_list = conn.lrange(key, 0, -1)
             objects = []
-            for serialized_data in serialized_list:
+            for serialized_data in serialized_list[:settings.REDIS_LIST_LENGTH_LIMIT]:
                 # 拿出来的object有些无法直接反序列化，比如timestamp,promise对象
                 deserialized_data = DjangoModelSerializer.deserialize(serialized_data)
                 objects.append(deserialized_data)
@@ -48,3 +48,4 @@ class RedisHelper:
         # 如果用户不是第一次发推，添加的时候lpush添加到最新推文
         serialized_data = DjangoModelSerializer.serialize(obj)
         conn.lpush(key, serialized_data)
+        conn.ltrim(key, 0, settings.REDIS_LIST_LENGTH_LIMIT-1)

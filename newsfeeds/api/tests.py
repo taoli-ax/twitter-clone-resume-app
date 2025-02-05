@@ -7,6 +7,8 @@ from rest_framework import status
 import newsfeeds
 from accounts.models import UserProfile
 from friendships.models import FriendShip
+from newsfeeds.models import NewsFeed
+from newsfeeds.services import NewsFeedService
 from testing.testcase import TestCase
 from rest_framework.test import APIClient
 
@@ -164,3 +166,53 @@ class NewsFeedsTestCase(TestCase):
         response = self.django_client.get(NEWSFEED)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['results'][0]['tweet']['content'], 'new content')
+
+    def _paginate_to_get_newsfeed(self, client):
+        response = client.get(NEWSFEED)
+        results = response.data['results']
+        while response.data['has_next_page']:
+            created_at_lt = response.data['results'][-1]['created_at']
+            response = client.get(NEWSFEED,{
+                'created_at_lt':created_at_lt,
+            })
+            results.extend(response.data['results'])
+        return results
+
+    def test_redis_list_limit(self):
+        users = [self.create_user('user_{}'.format(i)) for i in range(5)]
+        page_size = 20
+        list_limit = settings.REDIS_LIST_LENGTH_LIMIT
+        newsfeeds = []
+        for i in range(list_limit+page_size):
+            tweet =  self.create_tweet(users[i%5], content='feed_{}'.format(i))
+            newsfeed = self.create_newsfeed(self.django, tweet)
+            newsfeeds.append(newsfeed)
+
+        newsfeeds = newsfeeds[::-1]
+
+        # only cached list_limit objects
+        cached_newsfeed = NewsFeedService.get_cached_newsfeed(self.django.id)
+        # 不管你创建了多少个，只有20个被cache
+        self.assertEqual(len(cached_newsfeed), list_limit)
+        queryset = NewsFeed.objects.filter(user=self.django)
+        self.assertEqual(queryset.count(), list_limit + page_size)
+
+        results = self._paginate_to_get_newsfeed(self.django_client)
+        self.assertEqual(len(results), list_limit + page_size)
+        for i in range(list_limit+page_size):
+            self.assertEqual(newsfeeds[i].id, results[i]['id'])
+
+        self.create_friendship(self.django, self.python)
+        new_tweet = self.create_tweet(self.python)
+        NewsFeedService.fanout_to_followers(new_tweet)
+        def _test_newsfeed_after_new_feed_pushed():
+            results = self._paginate_to_get_newsfeed(self.django_client)
+            self.assertEqual(len(results), list_limit+page_size+1)
+            self.assertEqual(results[0]['tweet']['id'], new_tweet.id)
+            for i in range(list_limit+page_size):
+                self.assertEqual(newsfeeds[i].id, results[i+1]['id'])
+
+        self.clear_cache()
+        _test_newsfeed_after_new_feed_pushed()
+
+

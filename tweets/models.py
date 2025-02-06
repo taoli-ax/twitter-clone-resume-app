@@ -16,6 +16,10 @@ class Tweet(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL,null=True)
     content = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+    # 新增的field一定要设置 null=True, 否则default=0会去遍历整个表单设置，
+    # 导致migration非常慢，从而锁死表单，正常用户无法创建新tweet
+    comments_count = models.IntegerField(default=0, null=True)
+    likes_count = models.IntegerField(default=0, null=True)
 
     # property不可以被当作函数调用，所以就行类的变量一样直接引用hours_to_now,而不需要实例化类
     @property

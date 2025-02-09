@@ -129,11 +129,11 @@ class CommentsTest(TestCase):
         # 一开始没有评论 test tweet detail api
         response = self.client_python.get(url)
         self.assertEqual(response.status_code,200)
-        self.assertEqual(response.data['comment_count'],0)
+        self.assertEqual(response.data['comments_count'],0)
 
         # test tweet list api
         response = self.client_python.get(TWEET_URL, data={'user_id':self.python.id})
-        self.assertEqual(response.data['results'][0]['comment_count'], 0)
+        self.assertEqual(response.data['results'][0]['comments_count'], 0)
 
         # test newsfeed api
         self.create_comment(self.python, self.tweet_django)
@@ -142,7 +142,7 @@ class CommentsTest(TestCase):
         response = self.client_django.get(NEWSFEED)
         self.assertEqual(response.status_code,200)
         # 记住，只有tweet才有评论数
-        self.assertEqual(response.data['results'][0]['tweet']['comment_count'],1)
+        self.assertEqual(response.data['results'][0]['tweet']['comments_count'],1)
 
     def test_comment_create_api_trigger_notification(self):
         # 要通过api测试，而不是直接创建模型实例

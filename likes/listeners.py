@@ -11,8 +11,10 @@ def decr_likes_count(sender, instance, **kwargs):
         # 领会错了，应该是给comment添加like_count字段
         # comment = instance.content_object
         # Tweet.objects.filter(id=comment.id).update(likes_count=F('likes_count') - 1)
+        Comment.objects.filter(id=instance.object_id).update(likes_count=F('likes_count') - 1)
         comment = instance.content_object
-        Comment.objects.filter(id=comment.id).update(likes_count=F('likes_count') - 1)
+        # 修改数据库之后，更新缓存
+        RedisHelper.dec_count(comment, 'likes_count')
         return
 
     # 不仅仅是为了优雅代码，instance对象已经改变了
@@ -36,8 +38,10 @@ def incr_likes_count(sender, instance, created, **kwargs):
         from comments.models import Comment
         # comment = instance.content_object
         # Tweet.objects.filter(id=comment.id).update(likes_count=F('likes_count') + 1)
+        Comment.objects.filter(id=instance.object_id).update(likes_count=F('likes_count') + 1)
         comment = instance.content_object
-        Comment.objects.filter(id=comment.id).update(likes_count=F('likes_count') + 1)
+        # 修改数据库之后，更新缓存
+        RedisHelper.incr_count(comment, 'likes_count')
         return
 
 

@@ -1,6 +1,4 @@
 from django.conf import settings
-
-from tweets.models import Tweet
 from utils.redis_client import RedisClient
 from utils.redis_serializers import DjangoModelSerializer
 
@@ -49,3 +47,42 @@ class RedisHelper:
         serialized_data = DjangoModelSerializer.serialize(obj)
         conn.lpush(key, serialized_data)
         conn.ltrim(key, 0, settings.REDIS_LIST_LENGTH_LIMIT-1)
+
+    @classmethod
+    def get_count_key(cls, obj, attr):
+        return '{}.{}:{}'.format(obj.__class__.__name__, attr, obj.id)
+
+    @classmethod
+    def dec_count(cls, obj, attr):
+        conn = RedisClient.get_connection()
+        key = cls.get_count_key(obj, attr)
+        if not conn.exists(key):
+            conn.set(key, getattr(obj,attr))
+            conn.expire(key, settings.REDIS_KEY_EXPIRE_TIME)
+            return getattr(obj,attr)
+        return conn.decr(key)
+
+
+    @classmethod
+    def incr_count(cls, obj, attr):
+        conn = RedisClient.get_connection()
+        key = cls.get_count_key(obj, attr)
+        if not conn.exists(key):
+            conn.set(key, getattr(obj,attr))
+            conn.expire(key, settings.REDIS_KEY_EXPIRE_TIME)
+            return getattr(obj,attr)
+        return conn.incr(key)
+
+    @classmethod
+    def get_count(cls, obj, attr):
+        conn = RedisClient.get_connection()
+        key = cls.get_count_key(obj, attr)
+        count = conn.get(key)
+        if count is not None:
+            return int(count)
+
+        obj.refresh_from_db()
+        count = getattr(obj, attr)
+        conn.set(key, count)
+        # conn.expire(key, settings.REDIS_KEY_EXPIRE_TIME) 为什么不设置过期时间？
+        return count

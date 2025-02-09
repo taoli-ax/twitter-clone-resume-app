@@ -164,5 +164,54 @@ class CommentsTest(TestCase):
         self.assertEqual(response.status_code,201)
         self.assertEqual(Notification.objects.count(),1)
 
+    def test_comment_count_with_cache(self):
+        tweet_url = TWEET_DETAILS_URL.format(self.tweet_django.id)
+        response = self.client_django.get(tweet_url)
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.data['comments_count'],0)
+
+        data = {'tweet_id':self.tweet_django.id,'content':'new comment'}
+        # 创建3个客户端和用户
+        for i in range(2):
+            client, user = self.create_user_and_client('user_{}'.format(i))
+            # 每个用户在帖子下发一个评论
+            client.post(COMMENT_URL, data=data)
+            response  = client.get(tweet_url)
+            self.assertEqual(response.status_code,200)
+            self.assertEqual(response.data['comments_count'], i + 1)
+            self.tweet_django.refresh_from_db()
+            self.assertEqual(self.tweet_django.comments_count, i + 1)
+
+        # 其他用户再加一条评论
+        comment_response =self.client_python.post(COMMENT_URL, data=data).data
+        response = self.client_python.get(tweet_url)
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.data['comments_count'],3)
+        self.tweet_django.refresh_from_db()
+        self.assertEqual(self.tweet_django.comments_count, 3)
+
+        # 更新评论，不会导致评论数增加
+        comment_url = '{}{}/'.format(COMMENT_URL, comment_response['id'])
+        self.client_python.put(comment_url, {'content':'new comment'})
+        response = self.client_python.get(tweet_url)
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.data['comments_count'],3)
+        self.tweet_django.refresh_from_db()
+        self.assertEqual(self.tweet_django.comments_count, 3)
+
+        # 删除评论会导致评论数更新
+        response = self.client_python.delete(comment_url)
+        self.assertEqual(response.status_code,200)
+        response = self.client_django.get(tweet_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['comments_count'], 2)
+        self.tweet_django.refresh_from_db()
+        self.assertEqual(self.tweet_django.comments_count, 2)
+
+
+
+
+
+
 
 

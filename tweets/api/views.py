@@ -38,6 +38,8 @@ class TweetViewSet(viewsets.GenericViewSet,
         # 根据用户id展示对应的推文
         # 更改为先从redis cache获取
         user_id = request.query_params["user_id"]
+        # 不知道为什么加这一行
+        tweets = Tweet.objects.filter(user_id=user_id).prefetch_related('user')
         cached_tweets = TweetService.get_cached_tweets(user_id=user_id)
         page = self.paginator.paginate_cached_list(cached_tweets, request)
         if page is None:

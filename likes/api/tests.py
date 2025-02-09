@@ -186,7 +186,6 @@ class LikesApiTests(TestCase):
         self.assertEqual(response.data['likes_count'],1)
         tweet.refresh_from_db()
         self.assertEqual(tweet.likes_count, 1)
-        # 自己可以验证comment
 
         # 用户取消自己的点赞
         response = self.django_client.post(LIKES_CANCEL_URL, data=data)
@@ -195,4 +194,34 @@ class LikesApiTests(TestCase):
         self.assertEqual(tweet.likes_count, 0)
         response = self.python_client.get(tweet_url)
         self.assertEqual(response.data['likes_count'],0)
+
+        # 自己可以验证comment
+        # 创建一个评论并点赞
+        comment = self.create_comment(self.django, tweet)
+        response = self.django_client.post(LIKES_CREATE_URL, data={
+            'object_id': comment.id,
+            'content_type': 'comment',
+        })
+        self.assertEqual(response.status_code, 201)
+        # 评论有一个点赞
+        response = self.django_client.get(COMMENTS_LIST_URL, data={'tweet_id': tweet.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['comments'][0]['has_liked'], True)
+        self.assertEqual(response.data['comments'][0]['likes_count'], 1)
+
+        # tweet里的like_count 还是也是1，因为like_count是计算在tweet模型里的，包括comment的like
+        tweet.refresh_from_db()
+        self.assertEqual(tweet.likes_count, 1)
+
+        # 取消评论的点赞
+        response = self.django_client.post(LIKES_CANCEL_URL, data={
+            'object_id': comment.id,
+            'content_type': 'comment',
+        })
+        self.assertEqual(response.status_code, 200)
+        response = self.django_client.get(tweet_url)
+        self.assertEqual(response.data['likes_count'], 0)
+        tweet.refresh_from_db()
+        self.assertEqual(tweet.likes_count, 0)
+
 

@@ -171,3 +171,28 @@ class LikesApiTests(TestCase):
         self.assertEqual(len(response.data['likes']),2)
         self.assertEqual(response.data['likes'][0]['user']['id'],self.django.id)
         self.assertEqual(response.data['likes'][1]['user']['id'],self.python.id)
+
+    def test_count_likes(self):
+        # 用户创建推文，但然后给自己点赞
+        tweet = self.create_tweet(self.django)
+        data = {'object_id':tweet.id,'content_type':'tweet'}
+        response = self.django_client.post(LIKES_CREATE_URL, data)
+        self.assertEqual(response.status_code, 201)
+
+        # 验证自己的推文有一个点赞数
+        tweet_url = TWEET_DETAILS_URL.format(tweet.id)
+        response = self.django_client.get(tweet_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['likes_count'],1)
+        tweet.refresh_from_db()
+        self.assertEqual(tweet.likes_count, 1)
+        # 自己可以验证comment
+
+        # 用户取消自己的点赞
+        response = self.django_client.post(LIKES_CANCEL_URL, data=data)
+        self.assertEqual(response.status_code, 200)
+        tweet.refresh_from_db()
+        self.assertEqual(tweet.likes_count, 0)
+        response = self.python_client.get(tweet_url)
+        self.assertEqual(response.data['likes_count'],0)
+

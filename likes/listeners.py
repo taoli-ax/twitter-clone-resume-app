@@ -1,10 +1,9 @@
 
 
 
-def decr_likes_count(sender, instance, created, **kwargs):
+def decr_likes_count(sender, instance, **kwargs):
     from tweets.models import Tweet
     from django.db.models import F
-
 
     model_class = instance.content_type.model_class()
     if model_class!=Tweet:

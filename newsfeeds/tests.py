@@ -1,4 +1,6 @@
+from newsfeeds.models import NewsFeed
 from newsfeeds.services import NewsFeedService
+from newsfeeds.tasks import fanout_newsfeeds_main_task
 from testing.testcase import TestCase
 from tweets.cache import USER_NEWSFEEDS_PATTERN
 from utils.redis_client import RedisClient
@@ -47,3 +49,41 @@ class NewsFeedServiceTest(TestCase):
 
         newsfeeds = NewsFeedService.get_cached_newsfeed(self.python.id)
         self.assertEqual([nf.id for nf in newsfeeds],[newsfeed_2.id, newsfeed_1.id])
+
+class NewsFeedTaskTest(TestCase):
+    def setUp(self):
+        self.clear_cache()
+        self.django = self.create_user('django')
+        self.python = self.create_user('python')
+
+    def test_fanout_main_task(self):
+        tweet = self.create_tweet(self.python)
+        self.create_friendship(self.django,self.python)
+        msg = fanout_newsfeeds_main_task(tweet_id=tweet.id, tweet_user_id=self.python.id)
+        self.assertEqual(msg, '1 newsfeed going to fanout, 1 batches created')
+        self.assertEqual(1 + 1,NewsFeed.objects.count())
+        cache_list = NewsFeedService.get_cached_newsfeed(self.python.id)
+        self.assertEqual(len(cache_list), 1)
+
+        for i in range(2):
+            user = self.create_user('user_{}'.format(i))
+            self.create_friendship(user, self.python)
+
+        tweet = self.create_tweet(self.python)
+        msg = fanout_newsfeeds_main_task(tweet_id=tweet.id, tweet_user_id=self.python.id)
+        self.assertEqual(msg, '3 newsfeed going to fanout, 1 batches created')
+        self.assertEqual(4 +2,NewsFeed.objects.count())
+        cache_list = NewsFeedService.get_cached_newsfeed(self.python.id)
+        self.assertEqual(len(cache_list), 2)
+
+
+        user = self.create_user('another_user')
+        self.create_friendship(user, self.python)
+        tweet = self.create_tweet(self.python, content='new tweet')
+        msg = fanout_newsfeeds_main_task(tweet_id=tweet.id, tweet_user_id=self.python.id)
+        self.assertEqual(msg, '4 newsfeed going to fanout, 2 batches created')
+        self.assertEqual(5+6,NewsFeed.objects.count())
+        cache_list = NewsFeedService.get_cached_newsfeed(self.python.id)
+        self.assertEqual(len(cache_list), 3)
+        cache_list = NewsFeedService.get_cached_newsfeed(self.django.id)
+        self.assertEqual(len(cache_list), 3)

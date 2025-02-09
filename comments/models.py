@@ -17,6 +17,7 @@ class Comment(models.Model):
     content = models.CharField(max_length=500)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    likes_count = models.IntegerField(default=0, null=True)
 
     class Meta:
         # 在某个tweet下排序所有的comment

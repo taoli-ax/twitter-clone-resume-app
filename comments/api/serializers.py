@@ -4,6 +4,7 @@ from accounts.api.serializers import UserSerializerForComment
 from comments.models import Comment
 from likes.services import LikesService
 from tweets.models import Tweet
+from utils.redis_helper import RedisHelper
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -12,7 +13,7 @@ class CommentSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()
 
     def get_likes_count(self, obj):
-        return obj.like_set.count()
+        return RedisHelper.get_count(obj, 'likes_count')
 
     def get_has_liked(self, obj: Comment):
         return LikesService.has_liked(self.context['request'].user, obj)
@@ -20,6 +21,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields =(
+            'id',
             'user',
             'tweet_id',
             'content',

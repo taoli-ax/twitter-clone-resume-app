@@ -172,7 +172,7 @@ class LikesApiTests(TestCase):
         self.assertEqual(response.data['likes'][0]['user']['id'],self.django.id)
         self.assertEqual(response.data['likes'][1]['user']['id'],self.python.id)
 
-    def test_count_likes(self):
+    def test_likes_count(self):
         # 用户创建推文，但然后给自己点赞
         tweet = self.create_tweet(self.django)
         data = {'object_id':tweet.id,'content_type':'tweet'}
@@ -224,4 +224,47 @@ class LikesApiTests(TestCase):
         tweet.refresh_from_db()
         self.assertEqual(tweet.likes_count, 0)
 
+    def test_like_count_with_cache(self):
+        # 创建1个推，2个newsfeed
+        tweet = self.create_tweet(self.django)
+        self.create_newsfeed(self.django, tweet)
+        self.create_newsfeed(self.python, tweet)
 
+        data = {'object_id':tweet.id,'content_type':'tweet'}
+        tweet_url = TWEET_DETAILS_URL.format(tweet.id)
+        # 创建2个用户并给tweet点赞
+        for i in range(2):
+            client , user = self.create_user_and_client('user_{}'.format(i))
+            response = client.post(LIKES_CREATE_URL, data=data)
+            self.assertEqual(response.status_code, 201)
+            # 检查tweet有没有赞
+            response =self.django_client.get(tweet_url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data['likes_count'],i+1)
+            tweet.refresh_from_db()
+            self.assertEqual(tweet.likes_count, i+1)
+
+        self.python_client.post(LIKES_CREATE_URL, data=data)
+        response = self.python_client.get(tweet_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['likes_count'],3)
+        tweet.refresh_from_db()
+        self.assertEqual(tweet.likes_count, 3)
+
+        # 检查newsfeed里的tweet信息
+        newsfeeds_url = '/api/newsfeeds/'
+        response = self.python_client.get(newsfeeds_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['results'][0]['tweet']['likes_count'],3)
+
+        response = self.django_client.get(newsfeeds_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['results'][0]['tweet']['likes_count'],3)
+
+        # 取消一个赞
+        self.python_client.post(LIKES_CANCEL_URL, data=data)
+        response = self.python_client.get(tweet_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['likes_count'],2)
+        tweet.refresh_from_db()
+        self.assertEqual(tweet.likes_count, 2)

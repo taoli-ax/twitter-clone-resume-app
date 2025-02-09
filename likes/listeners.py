@@ -1,4 +1,4 @@
-
+from utils.redis_helper import RedisHelper
 
 
 def decr_likes_count(sender, instance, **kwargs):
@@ -15,8 +15,12 @@ def decr_likes_count(sender, instance, **kwargs):
         Comment.objects.filter(id=comment.id).update(likes_count=F('likes_count') - 1)
         return
 
+    # 不仅仅是为了优雅代码，instance对象已经改变了
+    Tweet.objects.filter(id=instance.object_id).update(likes_count=F('likes_count') - 1)
+    # 所以要重新获取tweet
     tweet = instance.content_object
-    Tweet.objects.filter(id=tweet.id).update(likes_count=F('likes_count') - 1)
+    # 修改数据库之后，更新缓存
+    RedisHelper.dec_count(tweet, 'likes_count')
 
 
 
@@ -36,5 +40,8 @@ def incr_likes_count(sender, instance, created, **kwargs):
         Comment.objects.filter(id=comment.id).update(likes_count=F('likes_count') + 1)
         return
 
+
+    Tweet.objects.filter(id=instance.object_id).update(likes_count=F("likes_count") + 1)
     tweet = instance.content_object
-    Tweet.objects.filter(id=tweet.id).update(likes_count=F("likes_count") + 1)
+    # 修改数据库之后，更新缓存
+    RedisHelper.incr_count(tweet, 'likes_count')

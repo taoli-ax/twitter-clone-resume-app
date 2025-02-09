@@ -8,11 +8,12 @@ from likes.services import LikesService
 from tweets.constents import TWEET_PHOTO_LIMIT
 from tweets.models import Tweet
 from tweets.services import TweetPhotoService
+from utils.redis_helper import RedisHelper
 
 
 class TweetSerializer(serializers.ModelSerializer):
     user = UserSerializerForTweet(source='cached_user')
-    comment_count = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
     has_liked = serializers.SerializerMethodField()
     photo_url = serializers.SerializerMethodField()
@@ -23,11 +24,12 @@ class TweetSerializer(serializers.ModelSerializer):
             photos_url.append(photo.file.url)
         return photos_url
 
-    def get_comment_count(self, obj):
-        return obj.comment_set.count()
+    def get_comments_count(self, obj):
+        # 查询缓存，如果缓存无效，查询model里的comment_count字段
+        return RedisHelper.get_count(obj, 'comments_count')
 
     def get_likes_count(self, obj):
-        return obj.like_set.count()
+        return RedisHelper.get_count(obj, 'likes_count')
 
     def get_has_liked(self, obj):
         return LikesService.has_liked(user=self.context['request'].user,obj=obj)
@@ -37,7 +39,7 @@ class TweetSerializer(serializers.ModelSerializer):
             "id",
             "user",
             "content",
-            'comment_count',
+            'comments_count',
             'has_liked',
             'likes_count',
             'photo_url',
@@ -72,7 +74,7 @@ class TweetSerializerForDetail(TweetSerializer):
             "created_at",
             'comments',
             'likes',
-            'comment_count',
+            'comments_count',
             'likes_count',
             'has_liked'
         )

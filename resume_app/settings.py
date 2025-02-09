@@ -188,7 +188,9 @@ REDIS_DB = 0 if TESTING else 1
 REDIS_KEY_EXPIRE_TIME = 60 * 60 * 24 * 7 # in seconds
 REDIS_LIST_LENGTH_LIMIT = 1000 if not TESTING else 20
 
-
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/2' if not TESTING else "redis://127.0.0.1:6379/1"
+CELERY_TIMEZONE = 'UTC'
+CELERY_TASK_ALWAYS_EAGER = TESTING
 try:
     from .local_settings import *
 except ImportError:

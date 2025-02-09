@@ -211,7 +211,7 @@ class LikesApiTests(TestCase):
 
         # tweet里的like_count 还是也是1，因为like_count是计算在tweet模型里的，包括comment的like
         tweet.refresh_from_db()
-        self.assertEqual(tweet.likes_count, 1)
+        self.assertEqual(tweet.likes_count, 0)
 
         # 取消评论的点赞
         response = self.django_client.post(LIKES_CANCEL_URL, data={

@@ -56,3 +56,9 @@ class FriendShipService:
     def invalid_following_cache(cls, from_user):
         key = FOLLOWINGS_PATTERN.format(user_id=from_user)
         cache.delete(key)
+
+
+    @classmethod
+    def get_follower_ids(cls, to_user_id):
+        followers = FriendShip.objects.filter(following=to_user_id)
+        return [f.follower_id for f in followers]

@@ -1,4 +1,6 @@
 from django.contrib.auth.models import User
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -18,6 +20,7 @@ class FriendshipViewSet(viewsets.GenericViewSet):
     pagination_class = FriendShipPagination
 
     @action(detail=True, methods=['GET'],permission_classes=[AllowAny])
+    @method_decorator(ratelimit(key='user_or_ip', rate='3/s', method='GET', block=True))
     def followers(self, request, pk):
         """
         由果推因
@@ -34,6 +37,7 @@ class FriendshipViewSet(viewsets.GenericViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(detail=True, methods=['get'],permission_classes=[AllowAny])
+    @method_decorator(ratelimit(key='user_or_ip', rate='3/s', method='GET', block=True))
     def following(self, request, pk):
         friendships = FriendShip.objects.filter(follower=pk).order_by('-created_at')
         page = self.paginate_queryset(friendships)
@@ -44,6 +48,7 @@ class FriendshipViewSet(viewsets.GenericViewSet):
         )
         return self.get_paginated_response(serializer.data)
     @action(methods=['POST'], detail=True, permission_classes=[IsAuthenticated])
+    @method_decorator(ratelimit(key='user', rate='10/s', method='POST', block=True))
     def follow(self, request, pk):
         # 如果关系已经存在，前端用户因为网络原因可能多次点击关注，不应该报错，直接选择忽略
         if FriendShip.objects.filter(follower=request.user.id, following=pk).exists():
@@ -68,6 +73,7 @@ class FriendshipViewSet(viewsets.GenericViewSet):
         return Response({"success":True}, status=status.HTTP_201_CREATED)
 
     @action(methods=['POST'], detail=True, permission_classes=[IsAuthenticated])
+    @method_decorator(ratelimit(key='user', rate='10/s', method='POST', block=True))
     def unfollow(self, request, pk):
         if request.user.id==str(pk):
             return Response({

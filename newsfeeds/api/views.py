@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -21,6 +23,7 @@ class NewsFeedViewSet(viewsets.GenericViewSet):
         # 虽然可以self.request.user.newsfeed_set()来查询，但是不够直观，最好还是用NewsFeed.objects.filter的方式
         return NewsFeed.objects.filter(user=self.request.user)
 
+    @method_decorator(ratelimit(key='user', rate='5/s', method='GET', block=True))
     def list(self, request):
         newsfeed = NewsFeedService.get_cached_newsfeed(request.user.id)
         page = self.paginator.paginate_cached_list(newsfeed,request)

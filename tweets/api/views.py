@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 
@@ -52,11 +54,14 @@ class TweetViewSet(viewsets.GenericViewSet,
         # 不需要调用is_valid() 因为没有用户输入，不需要反序列化验证
         return self.get_paginated_response(serializer.data)
 
+    @method_decorator(ratelimit(key='user_or_ip', rate='5/s', method='GET', block=True))
     def retrieve(self, request, *args, **kwargs):
         tweet = self.get_object()
         serializer = TweetSerializerForDetail(tweet, context={'request': request})
         return Response(serializer.data, status=200)
 
+    @method_decorator(ratelimit(key='user', rate='1/s', method='POST', block=True))
+    @method_decorator(ratelimit(key='user', rate='5/m', method='POST', block=True))
     def create(self, request, *args, **kwargs):
         #执行执行反序列化验证，因为有用户的输入,除了推文，还有用户id也需要一起传入
         serializer = TweetSerializerForCreate(

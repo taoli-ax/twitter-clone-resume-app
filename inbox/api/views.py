@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 from rest_framework.decorators import action
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import ListModelMixin, UpdateModelMixin
@@ -20,16 +22,19 @@ class NotificationViewSet(GenericViewSet,
         return self.request.user.notifications.all()
 
     @action(detail=False, methods=['get'],url_path='unread-count')
+    @method_decorator(ratelimit(key='user', rate='3/s', method='GET', block=True))
     def unread_count(self, request, *args, **kwargs):
         count=self.get_queryset().filter(unread=True).count()
         return Response({'unread_count': count},status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'],url_path='make-all-as-read')
+    @method_decorator(ratelimit(key='user', rate='3/s', method='POST', block=True))
     def make_all_as_read(self,request,*args, **kwargs):
         update_count = self.get_queryset().update(unread=False)
         return Response({"update_count":update_count},status=status.HTTP_200_OK)
 
     @required_params(method='POST', params=['unread'])
+    @method_decorator(ratelimit(key='user', rate='3/s', method='POST', block=True))
     def update(self, request, *args, **kwargs):
         """
         如果没有继承`UpdateModelMixin`,自定义实现`update`方法，

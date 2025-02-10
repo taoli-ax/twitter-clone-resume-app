@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
 
@@ -23,6 +25,7 @@ class CommentViewSet(viewsets.GenericViewSet):
             return [permissions.IsAuthenticated(), IsObjectOwner()]
         return [permissions.AllowAny()]
 
+    @method_decorator(ratelimit(key='user', rate='3/s', method='POST', block=True))
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = CommentForUpdateSerializer(
@@ -42,13 +45,14 @@ class CommentViewSet(viewsets.GenericViewSet):
             context={'request':request}
         ).data,status=status.HTTP_200_OK)
 
+    @method_decorator(ratelimit(key='user', rate='5/s', method='POST', block=True))
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.delete()
         # 原生返回204表示数据已不存在，但为了前端好判断，直接改成200
         return Response({"success":True},status=status.HTTP_200_OK)
 
-
+    @method_decorator(ratelimit(key='user', rate='3/s', method='POST', block=True))
     def create(self, request):
         data = {
             "tweet_id": request.data.get('tweet_id'),
@@ -75,6 +79,7 @@ class CommentViewSet(viewsets.GenericViewSet):
             status=status.HTTP_201_CREATED
         )
 
+    @method_decorator(ratelimit(key='user', rate='10/s', method='GET', block=True))
     def list(self, request):
         # 这是跟前端的约定吧，因为请求list时，url不含tweet_id
         if not "tweet_id" in request.query_params:

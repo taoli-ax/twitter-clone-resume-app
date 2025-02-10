@@ -4,6 +4,8 @@ from django.contrib.auth import (
     logout as django_logout
 )
 from django.contrib.auth.models import User
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -45,6 +47,7 @@ class AccountViewSet(viewsets.ViewSet):
     authentication_classes = (CsrfExemptSessionAuthentication,)
 
     @action(methods=['post'], detail=False)
+    @method_decorator(ratelimit(key='ip', rate='3/s', method='POST', block=True))
     def login(self, request, *args, **kwargs):
         serializer = LoginSerializer(data=request.data)
 
@@ -70,6 +73,7 @@ class AccountViewSet(viewsets.ViewSet):
         },status=200)
 
     @action(methods=['post'], detail=False)
+    @method_decorator(ratelimit(key='ip', rate='3/s', method='POST', block=True))
     def signup(self, request, *args, **kwargs):
         # 验证是否已存在
         serializer = SignUpSerializer(data=request.data)
@@ -90,6 +94,7 @@ class AccountViewSet(viewsets.ViewSet):
         },status=201)
 
     @action(methods=['post'], detail=False)
+    @method_decorator(ratelimit(key='ip', rate='3/s', method='POST', block=True))
     def logout(self, request):
         django_logout(request)
         return Response({
@@ -97,6 +102,7 @@ class AccountViewSet(viewsets.ViewSet):
         })
 
     @action(methods=['get'], detail=False)
+    @method_decorator(ratelimit(key='ip', rate='3/s', method='GET', block=True))
     def login_status(self, request):
         data = {"is_logged_in":request.user.is_authenticated}
         if request.user.is_authenticated:

@@ -56,7 +56,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
     'DEFAULT_FILTER_BACKENDS':[
-        'django_filters.rest_framework.DjangoFilterBackend',]
+        'django_filters.rest_framework.DjangoFilterBackend',],
+    'EXCEPTION_HANDLER':'utils.ratelimit.exception_handler',
 }
 
 MIDDLEWARE = [
@@ -133,6 +134,12 @@ CACHES = {
             'TIMEOUT': 86400,
             'KEY_PREFIX': 'testing',
             },
+    'ratelimit': {
+        'BACKEND':'django.core.cache.backends.memcached.PyMemcacheCache',
+        'LOCATION': '127.0.0.1:11211',
+        'TIMEOUT': 86400 * 7,
+        'KEY_PREFIX': 'rl',
+    }
 }
 
 # Password validation
@@ -196,6 +203,11 @@ CELERY_QUEUES = (
     Queue('default', routing_key='default'),
     Queue('newsfeeds', routing_key='newsfeeds'),
 )
+
+# rate limiter
+RATELIMIT_USE_CACHE= 'ratelimit'
+RATELIMIT_CACHE_PREFIX = 'rl'
+RATELIMIT_ENABLE = not TESTING
 
 try:
     from .local_settings import *

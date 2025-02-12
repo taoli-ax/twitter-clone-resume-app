@@ -10,3 +10,6 @@ bionic64.box
 *.deb
 contribution.exe
 ineedajob.png
+*.tar.gz
+tmp
+thrift-0.21.0
